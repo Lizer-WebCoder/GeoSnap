@@ -58,27 +58,33 @@ self.addEventListener('fetch', (event) => {
     })
   );
 });
-
 // ---- Web Push: fires even when the app is closed/backgrounded ----
 // This is what actually delivers the lunch/break/end-of-shift reminders
 // sent by the Cloudflare Worker cron job. The old setTimeout-based
 // reminders in index.html only worked while the app was open in memory.
+//
+// The vibrate pattern and silent flag now come from the server (based on
+// the user's chosen vibration preference: Gentle / Standard / Strong /
+// Silent), instead of always using one hardcoded pattern.
 self.addEventListener('push', (event) => {
   let data = {};
   try { data = event.data ? event.data.json() : {}; } catch { data = {}; }
   const title = data.title || 'GeoSnap';
   const body = data.body || '';
+  const vibratePattern = Array.isArray(data.vibrate) ? data.vibrate : [80, 40, 80];
+  const silent = !!data.silent;
+
   event.waitUntil(
     self.registration.showNotification(title, {
       body,
       icon: './icon-192.png',
       badge: './icon-192.png',
       tag: 'geosnap-schedule',
-      vibrate: [80, 40, 80]
+      vibrate: vibratePattern,
+      silent
     })
   );
 });
-
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   event.waitUntil(
@@ -89,7 +95,6 @@ self.addEventListener('notificationclick', (event) => {
     })
   );
 });
-
 // If the browser rotates the push subscription under the hood, re-register
 // it with the Worker so reminders keep working.
 self.addEventListener('pushsubscriptionchange', (event) => {
