@@ -247,6 +247,7 @@
     .schedule-modal {
       background: var(--toast-bg); color: var(--toast-text); border-radius: 18px; padding: 22px;
       width: min(340px, 100%); box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+      max-height: 85vh; overflow-y: auto;
     }
     .schedule-modal h3 { font-size: 17px; margin-bottom: 6px; }
     .modal-sub { font-size: 12.5px; opacity: 0.75; margin-bottom: 16px; line-height: 1.4; }
@@ -259,37 +260,32 @@
     .schedule-option span { font-weight: 500; font-size: 11.5px; opacity: 0.7; }
     .schedule-option.active { background: var(--primary); color: #fff; }
     .schedule-option.active span { opacity: 0.85; }
-<div id="scheduleModalBackdrop" class="modal-backdrop">
-  <div class="schedule-modal">
-    <h3>Shift Schedule</h3>
-    <p class="modal-sub">Get a reminder to snap a photo at lunch and near shift's end.</p>
-    <div class="schedule-options">
-      <button class="schedule-option" data-schedule="off">Off</button>
-      <button class="schedule-option" data-schedule="7-4">7:00 AM – 4:00 PM<span>Lunch 12:00 · 12:55 · End 4:00</span></button>
-      <button class="schedule-option" data-schedule="8-5">8:00 AM – 5:00 PM<span>Lunch 12:00 · 12:55 · End 5:00</span></button>
-      <button class="schedule-option" data-schedule="9-6">9:00 AM – 6:00 PM<span>Lunch 12:00 · 12:55 · End 6:00</span></button>
-      <button class="schedule-option" data-schedule="custom" id="customScheduleBtn">Custom…<span id="customSummary">Set your own times</span></button>
-    </div>
 
-    <div id="customTimesForm" class="custom-times-form">
-      <label>Shift start<input type="time" id="customShiftStart"></label>
-      <label>Lunch start<input type="time" id="customLunchStart" value="12:00"></label>
-      <label>Lunch end<input type="time" id="customLunchEnd" value="12:55"></label>
-      <label>Shift end<input type="time" id="customShiftEnd"></label>
-      <button class="actionBtn" id="saveCustomSchedule" style="background:var(--primary);color:#fff;width:100%;margin-top:6px;">Save Custom Schedule</button>
-    </div>
+    .custom-times-form {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .custom-times-form.show { display: flex; }
+    .custom-times-form label {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13.5px; font-weight: 600; color: var(--toast-text);
+    }
+    .custom-times-form input[type="time"] {
+      background: var(--chip-bg); color: inherit; border: none; border-radius: 8px;
+      padding: 6px 10px; font-size: 13.5px; font-family: inherit;
+    }
 
-    <p class="modal-sub" style="margin-top:16px;margin-bottom:8px;">Reminder vibration</p>
-    <div class="vibe-options">
-      <button class="vibe-option" data-vibe="gentle">Gentle</button>
-      <button class="vibe-option" data-vibe="standard">Standard</button>
-      <button class="vibe-option" data-vibe="strong">Strong</button>
-      <button class="vibe-option" data-vibe="silent">Silent</button>
-    </div>
+    .vibe-options { display: flex; gap: 8px; flex-wrap: wrap; }
+    .vibe-option {
+      flex: 1; min-width: 70px; padding: 10px 8px; border-radius: 10px; border: none;
+      background: var(--chip-bg); color: inherit; font-weight: 700; font-size: 12.5px;
+    }
+    .vibe-option.active { background: var(--primary); color: #fff; }
 
-    <button class="actionBtn" id="closeScheduleModal" style="margin-top:16px;background:#2a2a2a;color:#fff;width:100%;">Close</button>
-  </div>
-</div>
     #preview {
       display: none; position: absolute; inset: 0; background: var(--preview-bg); z-index: 50;
       flex-direction: column; align-items: center; justify-content: center;
@@ -376,7 +372,25 @@
         <button class="schedule-option" data-schedule="7-4">7:00 AM – 4:00 PM<span>Lunch 12:00 · 12:55 · End 4:00</span></button>
         <button class="schedule-option" data-schedule="8-5">8:00 AM – 5:00 PM<span>Lunch 12:00 · 12:55 · End 5:00</span></button>
         <button class="schedule-option" data-schedule="9-6">9:00 AM – 6:00 PM<span>Lunch 12:00 · 12:55 · End 6:00</span></button>
+        <button class="schedule-option" data-schedule="custom" id="customScheduleBtn">Custom…<span id="customSummary">Set your own times</span></button>
       </div>
+
+      <div id="customTimesForm" class="custom-times-form">
+        <label>Shift start<input type="time" id="customShiftStart"></label>
+        <label>Lunch start<input type="time" id="customLunchStart" value="12:00"></label>
+        <label>Lunch end<input type="time" id="customLunchEnd" value="12:55"></label>
+        <label>Shift end<input type="time" id="customShiftEnd"></label>
+        <button class="actionBtn" id="saveCustomSchedule" style="background:var(--primary);color:#fff;width:100%;margin-top:6px;">Save Custom Schedule</button>
+      </div>
+
+      <p class="modal-sub" style="margin-top:16px;margin-bottom:8px;">Reminder vibration</p>
+      <div class="vibe-options">
+        <button class="vibe-option" data-vibe="gentle">Gentle</button>
+        <button class="vibe-option" data-vibe="standard">Standard</button>
+        <button class="vibe-option" data-vibe="strong">Strong</button>
+        <button class="vibe-option" data-vibe="silent">Silent</button>
+      </div>
+
       <button class="actionBtn" id="closeScheduleModal" style="margin-top:16px;background:#2a2a2a;color:#fff;width:100%;">Close</button>
     </div>
   </div>
@@ -1024,10 +1038,21 @@
 
     // ---- Shift schedule reminders (server-driven via Cloudflare Worker) ----
     const SCHEDULE_KEY = 'gpscam_schedule';
+    const CUSTOM_TIMES_KEY = 'gpscam_custom_times';
+    const VIBE_KEY = 'gpscam_vibe';
 
     const PUSH_API_BASE = 'https://geosnap-push.liz-geosnap.workers.dev';
-
     const VAPID_PUBLIC_KEY = 'BCDs_3REZnxqWkaQ6cSUcDvIaiYSVU0X5XV8vwIhOhzCx8fvaeYxrM0bsD2Rp2U2cnHp2B0BgCAMn06Ly4-50p0';
+
+    const customScheduleBtn = document.getElementById('customScheduleBtn');
+    const customSummary = document.getElementById('customSummary');
+    const customTimesForm = document.getElementById('customTimesForm');
+    const customShiftStart = document.getElementById('customShiftStart');
+    const customLunchStart = document.getElementById('customLunchStart');
+    const customLunchEnd = document.getElementById('customLunchEnd');
+    const customShiftEnd = document.getElementById('customShiftEnd');
+    const saveCustomScheduleBtn = document.getElementById('saveCustomSchedule');
+    const vibeOptionBtns = document.querySelectorAll('.vibe-option');
 
     function urlBase64ToUint8Array(base64String) {
       const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
@@ -1042,10 +1067,38 @@
     function saveSchedule(id) {
       try { localStorage.setItem(SCHEDULE_KEY, id); } catch {}
     }
+    function getSavedCustomTimes() {
+      try { return JSON.parse(localStorage.getItem(CUSTOM_TIMES_KEY) || 'null'); } catch { return null; }
+    }
+    function saveCustomTimes(times) {
+      try { localStorage.setItem(CUSTOM_TIMES_KEY, JSON.stringify(times)); } catch {}
+    }
+    function getSavedVibe() {
+      try { return localStorage.getItem(VIBE_KEY) || 'standard'; } catch { return 'standard'; }
+    }
+    function saveVibe(id) {
+      try { localStorage.setItem(VIBE_KEY, id); } catch {}
+    }
+
     function updateScheduleUI() {
       const active = getSavedSchedule();
       scheduleOptionBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.schedule === active));
       scheduleBtn.classList.toggle('active', active !== 'off');
+
+      const savedTimes = getSavedCustomTimes();
+      if (active === 'custom' && savedTimes) {
+        customSummary.textContent = `Lunch ${savedTimes.lunchStart} · ${savedTimes.lunchEnd} · End ${savedTimes.shiftEnd}`;
+        customTimesForm.classList.add('show');
+        if (savedTimes.shiftStart) customShiftStart.value = savedTimes.shiftStart;
+        customLunchStart.value = savedTimes.lunchStart;
+        customLunchEnd.value = savedTimes.lunchEnd;
+        customShiftEnd.value = savedTimes.shiftEnd;
+      } else {
+        customSummary.textContent = 'Set your own times';
+      }
+
+      const activeVibe = getSavedVibe();
+      vibeOptionBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.vibe === activeVibe));
     }
 
     async function getPushSubscription() {
@@ -1060,13 +1113,14 @@
       return sub;
     }
 
-    async function sendScheduleToServer(scheduleId) {
+    async function sendScheduleToServer(scheduleId, customTimes) {
       const sub = await getPushSubscription();
       const tzOffsetMinutes = new Date().getTimezoneOffset();
+      const vibrateId = getSavedVibe();
       await fetch(`${PUSH_API_BASE}/api/subscribe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subscription: sub.toJSON(), scheduleId, tzOffsetMinutes })
+        body: JSON.stringify({ subscription: sub.toJSON(), scheduleId, customTimes, vibrateId, tzOffsetMinutes })
       });
     }
 
@@ -1086,17 +1140,30 @@
       }
     }
 
-    async function selectSchedule(id) {
-      if (id !== 'off') {
-        if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
-          toast('Push notifications not supported on this browser'); return;
-        }
-        let perm = Notification.permission;
-        if (perm === 'default') perm = await Notification.requestPermission();
-        if (perm !== 'granted') { toast('Enable notifications in your browser settings first'); return; }
+    async function ensureNotificationPermission() {
+      if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+        toast('Push notifications not supported on this browser'); return false;
+      }
+      let perm = Notification.permission;
+      if (perm === 'default') perm = await Notification.requestPermission();
+      if (perm !== 'granted') { toast('Enable notifications in your browser settings first'); return false; }
+      return true;
+    }
 
+    async function selectSchedule(id) {
+      if (id === 'custom') {
+        customTimesForm.classList.add('show');
+        scheduleOptionBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.schedule === 'custom'));
+        return;
+      }
+
+      customTimesForm.classList.remove('show');
+
+      if (id !== 'off') {
+        const ok = await ensureNotificationPermission();
+        if (!ok) return;
         try {
-          await sendScheduleToServer(id);
+          await sendScheduleToServer(id, null);
         } catch (err) {
           toast('Could not reach reminder server'); console.error(err); return;
         }
@@ -1111,14 +1178,61 @@
       vibrate(15);
     }
 
+    async function saveCustomSchedule() {
+      const times = {
+        shiftStart: customShiftStart.value || null,
+        lunchStart: customLunchStart.value,
+        lunchEnd: customLunchEnd.value,
+        shiftEnd: customShiftEnd.value
+      };
+      if (!times.lunchStart || !times.lunchEnd || !times.shiftEnd) {
+        toast('Fill in lunch start, lunch end, and shift end'); return;
+      }
+
+      const ok = await ensureNotificationPermission();
+      if (!ok) return;
+
+      try {
+        await sendScheduleToServer('custom', times);
+      } catch (err) {
+        toast('Could not reach reminder server'); console.error(err); return;
+      }
+
+      saveSchedule('custom');
+      saveCustomTimes(times);
+      updateScheduleUI();
+      scheduleModalBackdrop.classList.remove('show');
+      toast('Custom schedule saved');
+      vibrate(15);
+    }
+
     scheduleBtn.addEventListener('click', () => { scheduleModalBackdrop.classList.add('show'); vibrate(12); });
     closeScheduleModal.addEventListener('click', () => scheduleModalBackdrop.classList.remove('show'));
     scheduleModalBackdrop.addEventListener('click', (e) => { if (e.target === scheduleModalBackdrop) scheduleModalBackdrop.classList.remove('show'); });
     scheduleOptionBtns.forEach(btn => btn.addEventListener('click', () => selectSchedule(btn.dataset.schedule)));
+    saveCustomScheduleBtn.addEventListener('click', saveCustomSchedule);
+
+    vibeOptionBtns.forEach(btn => {
+      btn.addEventListener('click', async () => {
+        saveVibe(btn.dataset.vibe);
+        vibeOptionBtns.forEach(b => b.classList.toggle('active', b === btn));
+        vibrate(12);
+        const active = getSavedSchedule();
+        if (active !== 'off') {
+          try {
+            if (active === 'custom') await sendScheduleToServer('custom', getSavedCustomTimes());
+            else await sendScheduleToServer(active, null);
+          } catch (err) { console.warn('vibe re-sync failed', err); }
+        }
+      });
+    });
 
     navigator.serviceWorker?.addEventListener('message', (event) => {
-      if (event.data?.type === 'PUSH_RESUBSCRIBED' && getSavedSchedule() !== 'off') {
-        sendScheduleToServer(getSavedSchedule()).catch(() => {});
+      if (event.data?.type === 'PUSH_RESUBSCRIBED') {
+        const active = getSavedSchedule();
+        if (active === 'off') return;
+        if (active === 'custom') sendScheduleToServer('custom', getSavedCustomTimes()).catch(() => {});
+        else sendScheduleToServer(active, null).catch(() => {});
       }
     });
 
