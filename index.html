@@ -259,7 +259,37 @@
     .schedule-option span { font-weight: 500; font-size: 11.5px; opacity: 0.7; }
     .schedule-option.active { background: var(--primary); color: #fff; }
     .schedule-option.active span { opacity: 0.85; }
+<div id="scheduleModalBackdrop" class="modal-backdrop">
+  <div class="schedule-modal">
+    <h3>Shift Schedule</h3>
+    <p class="modal-sub">Get a reminder to snap a photo at lunch and near shift's end.</p>
+    <div class="schedule-options">
+      <button class="schedule-option" data-schedule="off">Off</button>
+      <button class="schedule-option" data-schedule="7-4">7:00 AM – 4:00 PM<span>Lunch 12:00 · 12:55 · End 4:00</span></button>
+      <button class="schedule-option" data-schedule="8-5">8:00 AM – 5:00 PM<span>Lunch 12:00 · 12:55 · End 5:00</span></button>
+      <button class="schedule-option" data-schedule="9-6">9:00 AM – 6:00 PM<span>Lunch 12:00 · 12:55 · End 6:00</span></button>
+      <button class="schedule-option" data-schedule="custom" id="customScheduleBtn">Custom…<span id="customSummary">Set your own times</span></button>
+    </div>
 
+    <div id="customTimesForm" class="custom-times-form">
+      <label>Shift start<input type="time" id="customShiftStart"></label>
+      <label>Lunch start<input type="time" id="customLunchStart" value="12:00"></label>
+      <label>Lunch end<input type="time" id="customLunchEnd" value="12:55"></label>
+      <label>Shift end<input type="time" id="customShiftEnd"></label>
+      <button class="actionBtn" id="saveCustomSchedule" style="background:var(--primary);color:#fff;width:100%;margin-top:6px;">Save Custom Schedule</button>
+    </div>
+
+    <p class="modal-sub" style="margin-top:16px;margin-bottom:8px;">Reminder vibration</p>
+    <div class="vibe-options">
+      <button class="vibe-option" data-vibe="gentle">Gentle</button>
+      <button class="vibe-option" data-vibe="standard">Standard</button>
+      <button class="vibe-option" data-vibe="strong">Strong</button>
+      <button class="vibe-option" data-vibe="silent">Silent</button>
+    </div>
+
+    <button class="actionBtn" id="closeScheduleModal" style="margin-top:16px;background:#2a2a2a;color:#fff;width:100%;">Close</button>
+  </div>
+</div>
     #preview {
       display: none; position: absolute; inset: 0; background: var(--preview-bg); z-index: 50;
       flex-direction: column; align-items: center; justify-content: center;
