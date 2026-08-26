@@ -1,1140 +1,1242 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Field Roster — Divine Rays Mobile Operations Tracker</title>
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#14524a">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<style>
-  :root{
-    --ink:#12312b; --paper:#f6f4ef; --card:#ffffff; --line:#dcd6c8;
-    --teal:#14524a; --teal-deep:#0b3630;
-    --amber:#c8862b; --amber-bg:#fbeed9;
-    --blue:#2f5f8a; --blue-bg:#e4edf5;
-    --green:#3d7a4f; --green-bg:#e2efe3;
-    --red:#a8402f; --red-bg:#f6e3df;
-    --purple:#6b3fa0; --purple-bg:#efe3fb;
-    --muted:#6c7570;
-    --table-head:#eef0e8;
-    --shadow: 0 1px 2px rgba(18,49,43,0.06), 0 6px 20px rgba(18,49,43,0.05);
-    --radius: 10px;
-  }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;}
-  body.dark{
-    --ink:#e7ede9; --paper:#101a17; --card:#182421; --line:#2b3a35;
-    --teal:#2f8a79; --teal-deep:#0d2e29;
-    --amber:#e0ab5c; --amber-bg:#3a2d16;
-    --blue:#82aed4; --blue-bg:#1c2c3c;
-    --green:#84c495; --green-bg:#1b3021;
-    --red:#e2907d; --red-bg:#3a221d;
-    --purple:#bda2e0; --purple-bg:#2a2038;
-    --muted:#9aa39c; --table-head:#1e2d28;
-    --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 6px 20px rgba(0,0,0,0.3);
-  }
-  body{ background:var(--paper); color:var(--ink); font-family:'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; -webkit-font-smoothing:antialiased; padding-bottom:60px; }
-  .mono{ font-family:'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GeoSnap">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="Capture photos and videos with GPS location, address and timestamp. Works offline.">
+  <title>GeoSnap by Lizerzxc – GPS Camera</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230a0a0c'/><rect x='24' y='40' width='52' height='32' rx='8' fill='%23fff'/><rect x='41' y='32' width='18' height='9' rx='3' fill='%23fff'/><rect x='64' y='44' width='8' height='8' rx='2' fill='%233b82f6'/><circle cx='50' cy='57' r='15' fill='%23111827'/><circle cx='50' cy='57' r='11.5' fill='%23fff'/><circle cx='50' cy='57' r='10' fill='%233b82f6'/><circle cx='46' cy='53' r='3' fill='%23fff' fill-opacity='0.85'/></svg>">
+  <style>
+    :root {
+      --primary: #3b82f6;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
 
-  /* ---------- Login overlay ---------- */
-  #loginOverlay{
-    position:fixed; inset:0; background:linear-gradient(180deg, var(--teal-deep), var(--teal));
-    display:flex; align-items:center; justify-content:center; z-index:200; padding:20px;
-  }
-  #loginOverlay.hidden{ display:none; }
-  .login-card{
-    background:var(--card); border-radius:14px; padding:32px 30px; width:100%; max-width:360px;
-    box-shadow:0 20px 60px rgba(11,54,48,0.35);
-  }
-  .login-card h1{ font-size:18px; margin:0 0 4px; color:var(--ink); }
-  .login-card p{ font-size:12px; color:var(--muted); margin:0 0 20px; }
-  .login-card label{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--teal-deep); display:block; margin:12px 0 4px; }
-  .login-card input{ width:100%; font-family:inherit; font-size:14px; padding:10px 12px; border-radius:8px; border:1px solid var(--line); }
-  .login-card button{ width:100%; margin-top:18px; background:var(--teal); color:#fff; border:none; padding:11px; border-radius:8px; font-weight:700; font-size:14px; cursor:pointer; }
-  .login-card button:hover{ background:var(--teal-deep); }
-  .login-card button:disabled{ opacity:0.6; cursor:default; }
-  .login-err{ color:var(--red); font-size:12px; margin-top:10px; display:none; }
-  .login-note{ font-size:11px; color:var(--muted); margin-top:14px; line-height:1.5; }
+      /* dark theme (default) */
+      --overlay-grad-top: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.5) 55%, transparent 100%);
+      --overlay-grad-bottom: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+      --text-color: #fff;
+      --sub-text-color: rgba(255,255,255,0.82);
+      --chip-bg: rgba(255,255,255,0.14);
+      --chip-text: #fff;
+      --side-btn-bg: rgba(255,255,255,0.14);
+      --side-btn-color: rgba(255,255,255,0.95);
+      --preview-bg: #050505;
+      --hint-color: #777;
+      --toast-bg: rgba(28,28,30,0.94);
+      --toast-text: #fff;
+      --segmented-bg: rgba(255,255,255,0.14);
+      --segmented-text: rgba(255,255,255,0.7);
+    }
+    :root[data-theme="light"] {
+      --overlay-grad-top: linear-gradient(to bottom, rgba(255,255,255,0.93) 0%, rgba(255,255,255,0.6) 55%, transparent 100%);
+      --overlay-grad-bottom: linear-gradient(to top, rgba(255,255,255,0.92) 0%, transparent 100%);
+      --text-color: #111;
+      --sub-text-color: rgba(17,17,17,0.78);
+      --chip-bg: rgba(0,0,0,0.08);
+      --chip-text: #111;
+      --side-btn-bg: rgba(0,0,0,0.08);
+      --side-btn-color: rgba(0,0,0,0.78);
+      --preview-bg: #f2f2f2;
+      --hint-color: #666;
+      --toast-bg: rgba(255,255,255,0.96);
+      --toast-text: #111;
+      --segmented-bg: rgba(0,0,0,0.08);
+      --segmented-text: rgba(0,0,0,0.55);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      height: 100%; background: #000; color: var(--text-color);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      overflow: hidden; position: relative; user-select: none; -webkit-user-select: none;
+    }
+    #camera { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; background: #0a0a0a; transition: filter 0.15s; }
+    .vignette {
+      position: absolute; inset: 0; pointer-events: none; z-index: 5;
+      background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%);
+    }
+    #grid { display: none; position: absolute; inset: 0; pointer-events: none; z-index: 6; }
+    #grid.show { display: block; }
+    #grid::before, #grid::after { content: ""; position: absolute; background: rgba(255,255,255,0.28); }
+    #grid::before { left: 33.333%; top: 0; bottom: 0; width: 1px; box-shadow: 33.333vw 0 0 rgba(255,255,255,0.28); }
+    #grid::after { top: 33.333%; left: 0; right: 0; height: 1px; box-shadow: 0 33.333vh 0 rgba(255,255,255,0.28); }
 
-  /* ---------- Header ---------- */
-  header{ background:linear-gradient(180deg, var(--teal-deep), var(--teal)); color:#f2ede0; padding:22px 26px 20px; position:sticky; top:0; z-index:30; box-shadow:0 4px 14px rgba(11,54,48,0.25); }
-  .header-row{ display:flex; align-items:flex-start; justify-content:space-between; gap:18px; flex-wrap:wrap; max-width:1400px; margin:0 auto; }
-  .brand-eyebrow{ font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#a9c9bf; margin-bottom:4px; font-weight:600; }
-  .brand-title{ font-size:24px; font-weight:800; letter-spacing:-0.01em; margin:0; display:flex; align-items:center; gap:10px; }
-  .brand-title .tag{ font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; background:rgba(255,255,255,0.14); padding:3px 8px; border-radius:20px; color:#f2ede0; }
-  .org-input{ background:transparent; border:none; border-bottom:1px dashed rgba(255,255,255,0.35); color:#f2ede0; font-size:13px; padding:2px 0; width:260px; margin-top:6px; font-family:inherit; }
-  .org-input::placeholder{ color:rgba(242,237,224,0.55); }
-  .org-input:focus{ outline:none; border-bottom-color:#f2ede0; }
-  .sync-row{ display:flex; align-items:center; gap:12px; margin-top:8px; flex-wrap:wrap; }
-  .sync-pill{ display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:600; color:#c7dcd5; }
-  .sync-pill::before{ content:''; width:7px; height:7px; border-radius:50%; background:#7fd6a0; flex:none; }
-  .sync-pill.err::before{ background:#e2897a; }
-  .sync-pill.busy::before{ background:#e0c479; }
-  .who-row{ font-size:11px; color:#c7dcd5; display:flex; align-items:center; gap:8px; }
-  .who-row button{ background:none; border:none; color:#f2ede0; text-decoration:underline; cursor:pointer; font-size:11px; padding:0; }
+    #overlay {
+      position: absolute; top: 0; left: 0; right: 0;
+      padding: calc(12px + var(--safe-top)) 16px 30px;
+      background: var(--overlay-grad-top);
+      z-index: 20; color: var(--text-color);
+    }
+    .top-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 8px; flex-wrap: wrap; }
+    .app-badge {
+      display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 700;
+      letter-spacing: 0.3px; background: var(--chip-bg); color: var(--chip-text);
+      padding: 6px 11px 6px 9px; border-radius: 20px;
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); white-space: nowrap;
+    }
+    .app-badge .logo {
+      width: 20px; height: 20px; flex-shrink: 0;
+      border-radius: 6px; overflow: hidden;
+    }
+    .app-badge .logo svg { width: 100%; height: 100%; display: block; }
+    .app-badge .brand-main { font-weight: 800; }
+    .app-badge .brand-sub { font-size: 0.6em; font-weight: 600; opacity: 0.7; margin-left: 3px; letter-spacing: 0.2px; vertical-align: 2px; }
+    .pills { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+    .pill {
+      font-size: 11.5px; font-weight: 600; padding: 5px 9px; border-radius: 18px;
+      background: var(--chip-bg); color: var(--chip-text);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); white-space: nowrap;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .pill::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.9; flex-shrink: 0; }
+    .pill.offline { color: #fca5a5; background: rgba(239,68,68,0.22); }
+    .pill.online  { color: #86efac; background: rgba(34,197,94,0.18); }
+    .pill.acc-good { color: #86efac; background: rgba(34,197,94,0.2); }
+    .pill.acc-ok   { color: #fde68a; background: rgba(245,158,11,0.2); }
+    .pill.acc-poor { color: #fca5a5; background: rgba(239,68,68,0.2); }
+    .pill.hidden { display: none; }
+    .icon-chip {
+      width: 30px; height: 30px; border-radius: 50%; border: none; background: var(--chip-bg); color: var(--chip-text);
+      display: flex; align-items: center; justify-content: center; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      flex-shrink: 0; transition: transform 0.1s, background 0.15s;
+    }
+    .icon-chip svg { width: 16px; height: 16px; }
+    .icon-chip:active { transform: scale(0.88); }
+    .icon-chip.active { background: rgba(59,130,246,0.5); color: #fff; }
 
-  .stat-strip{ display:flex; gap:10px; flex-wrap:wrap; }
-  .stat{ background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:8px 14px; min-width:92px; text-align:center; }
-  .stat .num{ font-size:20px; font-weight:800; line-height:1; font-family:'IBM Plex Mono',monospace; }
-  .stat .lbl{ font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:#c7dcd5; margin-top:3px; }
+    #location {
+      font-size: 16px; font-weight: 600; line-height: 1.32; margin-bottom: 4px; color: var(--text-color);
+      text-shadow: 0 1px 5px rgba(0,0,0,0.35); display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+    #coords {
+      font-size: 13px; opacity: 0.85; color: var(--sub-text-color); font-variant-numeric: tabular-nums; letter-spacing: 0.15px;
+      margin-bottom: 5px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    }
+    #coords .copy-btn {
+      font-size: 11.5px; font-weight: 600; color: #93c5fd; background: rgba(59,130,246,0.22);
+      border: none; border-radius: 8px; padding: 4px 9px; cursor: pointer;
+    }
+    #meta { font-size: 13px; color: var(--sub-text-color); font-variant-numeric: tabular-nums; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+    #recTimer {
+      display: none; align-items: center; gap: 6px; color: #fca5a5; font-weight: 700;
+    }
+    #recTimer.show { display: flex; }
+    #recTimer::before {
+      content: ""; width: 8px; height: 8px; border-radius: 50%; background: #ef4444;
+      animation: pulse-dot 1s ease-in-out infinite;
+    }
+    @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+    #status { font-size: 12.5px; color: #fca5a5; margin-top: 6px; min-height: 16px; }
+    #enableLocBtn {
+      display: none; margin-top: 10px; width: 100%; padding: 12px; background: var(--primary);
+      color: white; border: none; border-radius: 14px; font-size: 14.5px; font-weight: 600;
+      box-shadow: 0 4px 16px rgba(59,130,246,0.4);
+    }
+    #enableLocBtn:active { transform: scale(0.98); }
+    .map-link { display: none; margin-top: 8px; font-size: 13px; color: #93c5fd; text-decoration: none; font-weight: 500; }
+    .spinner {
+      display: inline-block; width: 12px; height: 12px; border: 2px solid rgba(120,120,120,0.35);
+      border-top-color: var(--text-color); border-radius: 50%; animation: spin 0.65s linear infinite;
+      vertical-align: -2px; margin-right: 5px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ---------- Toolbar ---------- */
-  .toolbar{ max-width:1400px; margin:16px auto 10px; padding:0 26px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
-  .btn{ border:1px solid var(--line); background:var(--card); color:var(--ink); padding:9px 14px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all .12s ease; box-shadow:var(--shadow); }
-  .btn:hover{ border-color:var(--teal); color:var(--teal-deep); transform:translateY(-1px); }
-  .btn-primary{ background:var(--teal); color:#fff; border-color:var(--teal); }
-  .btn-primary:hover{ background:var(--teal-deep); color:#fff; }
-  .btn-ghost{ box-shadow:none; }
-  input[type="text"], input[type="date"], input[type="month"], input[type="email"], input[type="password"], select{ font-family:inherit; font-size:13px; padding:9px 10px; border-radius:8px; border:1px solid var(--line); background:var(--card); color:var(--ink); }
-  #monthFilter{ font-weight:700; color:var(--teal-deep); cursor:pointer; }
-  #search{ min-width:220px; flex:1; }
-  .spacer{ flex:1; }
-  input[type="file"]{ display:none; }
+    #filterStrip {
+      display: none; position: absolute; left: 0; right: 0; bottom: 168px; z-index: 21;
+      padding: 10px 14px calc(4px + var(--safe-bottom) * 0); gap: 10px;
+      overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    }
+    #filterStrip.show { display: flex; }
+    #filterStrip::-webkit-scrollbar { display: none; }
+    .filter-chip {
+      flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 5px;
+      background: none; border: none; color: var(--text-color); opacity: 0.75;
+    }
+    .filter-chip.active { opacity: 1; }
+    .filter-chip .swatch {
+      width: 46px; height: 46px; border-radius: 12px; overflow: hidden; border: 2px solid transparent;
+      background: #333;
+    }
+    .filter-chip.active .swatch { border-color: var(--primary); }
+    .filter-chip .swatch img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .filter-chip span { font-size: 10.5px; font-weight: 600; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
 
-  /* ---------- Groups ---------- */
-  .team-group{ max-width:1400px; margin:18px auto; padding:0 26px; }
-  .team-head{ display:flex; align-items:center; gap:10px; cursor:pointer; user-select:none; padding:10px 4px; border-bottom:2px solid var(--ink); }
-  .team-head .chev{ transition:transform .15s ease; font-size:12px; color:var(--muted); }
-  .team-head.collapsed .chev{ transform:rotate(-90deg); }
-  .team-head h2{ font-size:15px; margin:0; letter-spacing:.02em; }
-  .team-title-block{ display:flex; flex-direction:column; gap:1px; }
-  .team-staff-line{ font-size:11px; color:var(--muted); font-weight:400; }
-  .staff-row{ display:flex; gap:6px; margin-bottom:6px; }
-  .staff-row input{ flex:1; }
-  .team-head .count{ font-size:11px; color:var(--muted); font-family:'IBM Plex Mono',monospace; background:var(--line); padding:2px 8px; border-radius:20px; }
-  .team-head .team-tools{ margin-left:auto; display:flex; gap:8px; }
-  .team-head .team-tools button{ background:none; border:none; color:var(--muted); font-size:12px; cursor:pointer; text-decoration:underline; }
+    #controls {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 12px 20px calc(28px + var(--safe-bottom));
+      background: var(--overlay-grad-bottom);
+      z-index: 20; display: flex; flex-direction: column; align-items: center; gap: 14px;
+    }
 
-  /* ---------- Table ---------- */
-  .table-wrap{ overflow-x:auto; border-radius:var(--radius); box-shadow:var(--shadow); background:var(--card); margin-top:8px; }
-  table{ width:100%; border-collapse:collapse; min-width:1260px; }
-  thead th{ position:sticky; top:0; background:var(--table-head); color:var(--teal-deep); font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; font-weight:700; padding:10px 10px; text-align:center; border-bottom:1px solid var(--line); white-space:nowrap; }
-  thead th:first-child{ text-align:left; }
-  tbody tr{ border-bottom:1px solid #ece8dc; }
-  tbody tr:hover{ background:#fbfaf6; }
-  tbody tr.dup-row{ background:var(--red-bg); }
-  tbody tr.pending-row{ box-shadow:inset 3px 0 0 var(--amber); }
-  td{ padding:9px 10px; font-size:13px; vertical-align:middle; }
-  td.name{ font-weight:600; min-width:190px; }
-  .idcell{ font-family:'IBM Plex Mono',monospace; font-size:12.5px; }
-  .datecell{ font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--muted); white-space:nowrap; text-align:center; }
-  input[type="checkbox"]{ width:17px; height:17px; accent-color:var(--teal); cursor:pointer; }
+    #modeToggle {
+      display: flex; background: var(--segmented-bg); border-radius: 20px; padding: 3px;
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    }
+    #modeToggle button {
+      border: none; background: none; padding: 6px 18px; border-radius: 17px; font-size: 12.5px;
+      font-weight: 700; color: var(--segmented-text); letter-spacing: 0.3px; transition: background 0.15s, color 0.15s;
+    }
+    #modeToggle button.active { background: rgba(255,255,255,0.95); color: #000; }
+    :root[data-theme="light"] #modeToggle button.active { background: #111; color: #fff; }
 
-  .badge-select{ border:none; border-radius:20px; padding:5px 10px 5px 9px; font-size:11.5px; font-weight:700; cursor:pointer; appearance:none; -webkit-appearance:none; text-align:left; background-position:right 7px center; background-repeat:no-repeat; background-size:9px; padding-right:22px; }
-  .st-registered{ background:var(--amber-bg); color:var(--amber); }
-  .st-registered-other{ background:var(--purple-bg); color:var(--purple); }
-  .fac-select{ background:var(--table-head); color:var(--ink); }
-  .fac-fixed{ font-size:11.5px; font-weight:700; padding:5px 10px; border-radius:20px; background:var(--amber-bg); color:var(--amber); display:inline-block; }
-  .cl-pending{ background:var(--amber-bg); color:var(--amber); }
-  .cl-t1{ background:var(--blue-bg); color:var(--blue); }
-  .cl-missed24{ background:var(--red-bg); color:var(--red); }
-  .dup-tag{ font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px; }
-  .dup-new{ background:var(--green-bg); color:var(--green); }
-  .dup-flag{ background:var(--red-bg); color:var(--red); }
-  .sync-tag{ font-size:10px; font-weight:700; padding:2px 6px; border-radius:6px; background:var(--amber-bg); color:var(--amber); margin-left:6px; }
+    .ctrl-row { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 380px; }
+    .side-btn {
+      width: 50px; height: 50px; border-radius: 50%; border: none; background: var(--side-btn-bg);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); color: var(--side-btn-color);
+      display: flex; align-items: center; justify-content: center; transition: transform 0.12s, background 0.15s; position: relative;
+    }
+    .side-btn:active { transform: scale(0.88); background: rgba(128,128,128,0.3); }
+    .side-btn svg { width: 22px; height: 22px; }
+    .side-btn.active { background: rgba(59,130,246,0.45); color: #fff; }
+    .side-btn.torch-on { background: rgba(251,191,36,0.42); color: #fde68a; }
+    .side-btn.disabled { opacity: 0.35; pointer-events: none; }
 
-  .row-actions{ display:flex; gap:6px; }
-  .icon-btn{ border:none; background:none; cursor:pointer; color:var(--muted); font-size:14px; padding:3px 5px; border-radius:6px; }
-  .icon-btn:hover{ background:var(--line); color:var(--ink); }
-  .empty-state{ text-align:center; padding:50px 20px; color:var(--muted); font-size:13px; }
+    #captureBtn {
+      width: 78px; height: 78px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.95);
+      background: transparent; position: relative; padding: 0; transition: transform 0.1s, border-color 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+    }
+    #captureBtn::after {
+      content: ""; position: absolute; inset: 5px; background: #fff; border-radius: 50%;
+      transition: transform 0.1s, background 0.1s, border-radius 0.15s;
+    }
+    #captureBtn:active { transform: scale(0.93); }
+    #captureBtn:active::after { transform: scale(0.88); background: #ddd; }
+    #captureBtn.not-ready { border-color: rgba(255,255,255,0.35); }
+    #captureBtn.not-ready::after { background: rgba(255,255,255,0.4); }
+    #captureBtn.locked { box-shadow: 0 0 0 4px rgba(34,197,94,0.28); }
+    #captureBtn.video-mode { border-color: rgba(239,68,68,0.9); }
+    #captureBtn.video-mode::after { background: #ef4444; }
+    #captureBtn.recording { border-color: rgba(239,68,68,1); animation: rec-ring 1.4s ease-in-out infinite; }
+    #captureBtn.recording::after { border-radius: 8px; inset: 24px; background: #ef4444; }
+    @keyframes rec-ring { 0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); } 50% { box-shadow: 0 0 0 8px rgba(239,68,68,0); } }
 
-  /* ---------- Modal ---------- */
-  .modal-backdrop{ position:fixed; inset:0; background:rgba(18,49,43,0.45); display:none; align-items:flex-start; justify-content:center; z-index:100; padding:40px 16px; overflow-y:auto; }
-  .modal-backdrop.open{ display:flex; }
-  .modal{ background:var(--card); border-radius:14px; max-width:640px; width:100%; padding:26px 28px 22px; box-shadow:0 20px 60px rgba(11,54,48,0.3); }
-  .modal h3{ margin:0 0 4px; font-size:17px; }
-  .modal .modal-sub{ font-size:12px; color:var(--muted); margin-bottom:18px; }
-  .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px 14px; }
-  .form-grid .full{ grid-column:1/-1; }
-  label{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:var(--teal-deep); display:block; margin-bottom:4px; }
-  .form-grid input, .form-grid select{ width:100%; }
-  .check-row{ display:flex; align-items:center; gap:8px; margin-top:6px; }
-  .check-row label{ margin:0; text-transform:none; font-weight:600; font-size:13px; color:var(--ink); }
-  .modal-foot{ display:flex; justify-content:flex-end; gap:10px; margin-top:20px; }
-  .dup-warning{ background:var(--red-bg); color:var(--red); font-size:12px; padding:8px 10px; border-radius:8px; margin-top:4px; display:none; }
-  .field-hint{ font-size:11px; color:var(--muted); margin-top:4px; }
-  .legend{ max-width:1400px; margin:26px auto 0; padding:16px 26px; font-size:12px; color:var(--muted); display:flex; gap:18px; flex-wrap:wrap; align-items:center; }
-  .legend b{ color:var(--ink); }
-  .app-footer{ text-align:center; font-size:11px; color:#8a8f89; padding:18px 20px 4px; letter-spacing:.02em; }
+    #lastThumb {
+      width: 50px; height: 50px; border-radius: 12px; border: 2px solid rgba(255,255,255,0.55);
+      object-fit: cover; background: #222; display: none; cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+    }
+    #lastThumb.show { display: block; }
 
-  @media (max-width: 720px){ .stat-strip{ display:none; } .form-grid{ grid-template-columns:1fr; } header{ padding:16px; } .toolbar{ padding:0 14px; } .team-group{ padding:0 14px; } }
-  @media print{
-    header, .toolbar, .row-actions, .legend, .app-footer, .team-tools,
-    #loginOverlay, th:last-child, td:last-child{ display:none !important; }
-    body{ padding-bottom:0; background:#fff; }
-    .team-group{ max-width:none; margin:0 0 22px; padding:0; page-break-inside:avoid; break-inside:avoid; }
-    .team-group.print-hide{ display:none !important; }
-    .team-head{ border-bottom:2px solid #000; }
-    .table-wrap{ overflow:visible; box-shadow:none; border-radius:0; }
-    table{ min-width:0; width:100%; font-size:10px; }
-    th, td{ padding:4px 5px; }
-    thead{ display:table-header-group; }
-    tr{ page-break-inside:avoid; break-inside:avoid; }
-    .badge-select, .fac-fixed, .dup-tag, .sync-tag{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-  }
-</style>
+    #flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 40; transition: opacity 0.07s; }
+    #toast {
+      position: absolute; bottom: calc(146px + var(--safe-bottom)); left: 50%;
+      transform: translateX(-50%) translateY(20px); background: var(--toast-bg);
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); color: var(--toast-text); font-size: 14px; font-weight: 600;
+      padding: 12px 20px; border-radius: 13px; z-index: 60; opacity: 0; pointer-events: none;
+      transition: opacity 0.25s, transform 0.25s; white-space: nowrap; max-width: 90%; text-align: center;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    .modal-backdrop {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 70;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .modal-backdrop.show { display: flex; }
+    .schedule-modal {
+      background: var(--toast-bg); color: var(--toast-text); border-radius: 18px; padding: 22px;
+      width: min(340px, 100%); box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+      max-height: 85vh; overflow-y: auto;
+    }
+    .schedule-modal h3 { font-size: 17px; margin-bottom: 6px; }
+    .modal-sub { font-size: 12.5px; opacity: 0.75; margin-bottom: 16px; line-height: 1.4; }
+    .schedule-options { display: flex; flex-direction: column; gap: 8px; }
+    .schedule-option {
+      text-align: left; padding: 12px 14px; border-radius: 12px; border: none;
+      background: var(--chip-bg); color: inherit; font-weight: 700; font-size: 14px;
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .schedule-option span { font-weight: 500; font-size: 11.5px; opacity: 0.7; }
+    .schedule-option.active { background: var(--primary); color: #fff; }
+    .schedule-option.active span { opacity: 0.85; }
+
+    .custom-times-form {
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .custom-times-form.show { display: flex; }
+    .custom-times-form label {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 13.5px; font-weight: 600; color: var(--toast-text);
+    }
+    .custom-times-form input[type="time"] {
+      background: var(--chip-bg); color: inherit; border: none; border-radius: 8px;
+      padding: 6px 10px; font-size: 13.5px; font-family: inherit;
+    }
+
+    .vibe-options { display: flex; gap: 8px; flex-wrap: wrap; }
+    .vibe-option {
+      flex: 1; min-width: 70px; padding: 10px 8px; border-radius: 10px; border: none;
+      background: var(--chip-bg); color: inherit; font-weight: 700; font-size: 12.5px;
+    }
+    .vibe-option.active { background: var(--primary); color: #fff; }
+
+    #preview {
+      display: none; position: absolute; inset: 0; background: var(--preview-bg); z-index: 50;
+      flex-direction: column; align-items: center; justify-content: center;
+      padding: 16px 14px calc(16px + var(--safe-bottom)); animation: fadeIn 0.22s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    #previewImg { max-width: 100%; max-height: 62vh; border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,0.35); object-fit: contain; display: none; background: #000; }
+    #videoStampWrap { display: none; position: relative; max-width: 100%; max-height: 62vh; margin: 0 auto; }
+    #videoStampWrap.show { display: block; }
+    #previewVideo { display: block; width: 100%; max-height: 62vh; border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,0.35); object-fit: contain; background: #000; }
+    #videoStampOverlay { position: absolute; left: 10px; bottom: 10px; right: 10px; pointer-events: none; text-shadow: 0 1px 4px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.85); }
+    #videoStampOverlay .vs-title { color: #fff; font-size: 13.5px; font-weight: 700; line-height: 1.35; }
+    #videoStampOverlay .vs-sub { color: rgba(255,255,255,0.88); font-size: 11.5px; font-weight: 600; line-height: 1.3; }
+    #hint { color: var(--hint-color); font-size: 13px; margin-top: 16px; text-align: center; line-height: 1.4; }
+    #btnRow { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%; }
+    .actionBtn {
+      padding: 13px 20px; font-size: 15px; border: none; border-radius: 14px; font-weight: 700;
+      min-width: 100px; transition: transform 0.1s, opacity 0.1s;
+    }
+    .actionBtn:active { transform: scale(0.96); opacity: 0.9; }
+    #retakeBtn { background: #2a2a2a; color: #fff; }
+    #shareBtn  { background: var(--primary); color: #fff; box-shadow: 0 4px 14px rgba(59,130,246,0.35); }
+    #saveBtn   { background: var(--success); color: #fff; box-shadow: 0 4px 14px rgba(34,197,94,0.3); }
+  </style>
 </head>
 <body>
+  <video id="camera" autoplay playsinline muted></video>
+  <div class="vignette"></div>
+  <div id="grid"></div>
+  <div id="flash"></div>
+  <div id="toast"></div>
 
-<!-- ============ LOGIN OVERLAY ============ -->
-<div id="loginOverlay">
-  <div class="login-card">
-    <h1>Field Roster — Sign in</h1>
-    <p>Divine Rays Mobile Operations · shared team login</p>
-    <label for="loginEmail">Email</label>
-    <input type="email" id="loginEmail" autocomplete="username">
-    <label for="loginPassword">Password</label>
-    <input type="password" id="loginPassword" autocomplete="current-password">
-    <button id="loginBtn">Sign in</button>
-    <div class="login-err" id="loginErr"></div>
-    <div class="login-note">Use the shared team email + password your admin set up in Supabase. Once signed in on this device, you'll stay signed in — even offline.</div>
-  </div>
-</div>
-
-<header>
-  <div class="header-row">
-    <div>
-      <div class="brand-eyebrow">Divine Rays Mobile Operations</div>
-      <h1 class="brand-title">Field Roster <span class="tag">Patient Tracker</span></h1>
-      <input class="org-input" id="orgName" placeholder="Organization / mission name (click to edit)">
-      <div class="sync-row">
-        <div class="sync-pill" id="syncPill">Connecting…</div>
-        <div class="who-row"><span id="whoAmI"></span><button id="logoutBtn">Sign out</button></div>
-      </div>
-    </div>
-    <div class="stat-strip" id="statStrip"></div>
-  </div>
-</header>
-
-<div class="toolbar">
-  <input type="month" id="monthFilter" title="Choose which month's mobile/team records to view">
-  <button class="btn" id="addTeamBtn">+ Add Team / Site</button>
-  <button class="btn" id="themeToggle">🌙 Dark mode</button>
-  <input type="text" id="search" placeholder="Search name or PhilHealth ID…">
-  <select id="filterStatus">
-    <option value="">All statuses</option>
-    <option value="registered">Registered</option>
-    <option value="registered_other">Registered to other DR facility</option>
-  </select>
-  <select id="filterBenefit">
-    <option value="">All benefit states</option>
-    <option value="rice-yes">Rice availed</option>
-    <option value="rice-no">Rice not yet availed</option>
-    <option value="lab-yes">Lab availed</option>
-    <option value="lab-no">Lab not yet availed</option>
-  </select>
-  <div class="spacer"></div>
-  <button class="btn" id="syncNowBtn">🔄 Sync now</button>
-  <button class="btn" id="exportBtn">⬇ Export CSV</button>
-  <button class="btn" id="importBtn">⬆ Import CSV</button>
-  <input type="file" id="importFile" accept=".csv">
-  <button class="btn" id="printBtn">🖨 Print</button>
-</div>
-
-<div id="groupsContainer"></div>
-<div class="legend" id="legend"></div>
-<div class="app-footer">Built by Lizerxc · © 2026 All rights reserved</div>
-
-<!-- Patient Modal -->
-<div class="modal-backdrop" id="modalBackdrop">
-  <div class="modal">
-    <h3 id="modalTitle">Add Patient</h3>
-    <div class="modal-sub">Fields marked with the team dropdown determine which group this row appears under.</div>
-    <div class="form-grid">
-      <div class="full">
-        <label>Patient name (Last, First, Middle, Suffix)</label>
-        <input type="text" id="f_name" placeholder="DELA CRUZ, JUAN, SANTOS">
-      </div>
-      <div>
-        <label>PhilHealth ID</label>
-        <input type="text" id="f_phid" placeholder="1234-5678-9012">
-        <div class="dup-warning" id="dupWarning">⚠ This PhilHealth ID already exists in the roster — will be flagged as a duplicate.</div>
-      </div>
-      <div>
-        <label>Team / Site</label>
-        <select id="f_team"></select>
-      </div>
-      <div>
-        <label>Status</label>
-        <select id="f_status">
-          <option value="registered">Registered</option>
-          <option value="registered_other">Registered to other DR facility</option>
-        </select>
-      </div>
-      <div>
-        <label>Facility</label>
-        <select id="f_facility"></select>
-        <div class="field-hint" id="facilityHint"></div>
-      </div>
-      <div>
-        <label>Status of claim</label>
-        <select id="f_claim">
-          <option value="pending">Pending</option>
-          <option value="t1">T1 Submitted</option>
-          <option value="missed24">Missed 24h</option>
-        </select>
-      </div>
-      <div>
-        <label>Date encoded</label>
-        <input type="date" id="f_dateEncoded">
-      </div>
-      <div>
-        <label>Date validated &amp; submitted</label>
-        <input type="date" id="f_dateSubmitted">
-      </div>
-      <div class="full" style="display:flex; gap:24px; flex-wrap:wrap;">
-        <div class="check-row"><input type="checkbox" id="f_mca"><label for="f_mca">Digital MCA attachment on file</label></div>
-        <div class="check-row"><input type="checkbox" id="f_within24"><label for="f_within24">Submitted within 24 hours</label></div>
-        <div class="check-row"><input type="checkbox" id="f_rice"><label for="f_rice">Already availed rice</label></div>
-        <div class="check-row"><input type="checkbox" id="f_lab"><label for="f_lab">Already availed laboratory</label></div>
-      </div>
-      <div class="full">
-        <label>Notes</label>
-        <input type="text" id="f_notes" placeholder="Optional remarks…">
-      </div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn btn-ghost" id="cancelBtn">Cancel</button>
-      <button class="btn btn-primary" id="saveBtn">Save patient</button>
-    </div>
-  </div>
-</div>
-
-<!-- Team / Site Modal -->
-<div class="modal-backdrop" id="teamModalBackdrop">
-  <div class="modal">
-    <h3 id="teamModalTitle">Add Team / Site</h3>
-    <div class="modal-sub">Name the mobile team/site and list who's managing this field medical mission.</div>
-    <div class="form-grid">
-      <div class="full">
-        <label>Team / Site name</label>
-        <input type="text" id="tm_name" placeholder="Mobile Staff — Site B">
-      </div>
-      <div class="full">
-        <label>Managing staff / employees</label>
-        <div id="tm_staffList"></div>
-        <button class="btn btn-ghost" id="tm_addStaffBtn" type="button">+ Add staff member</button>
-      </div>
-    </div>
-    <div class="modal-foot">
-      <button class="btn btn-ghost" id="tm_cancelBtn">Cancel</button>
-      <button class="btn btn-primary" id="tm_saveBtn">Save team</button>
-    </div>
-  </div>
-</div>
-
-<script>
-/* =========================================================================
-   STEP 1 — PASTE YOUR SUPABASE KEYS HERE
-   Find these in your Supabase project: Settings → API
-   Replace ONLY the text between the quotes below. Do not delete the quotes.
-   ========================================================================= */
-const SUPABASE_URL = "https://xuaieokstfsxghgvgtzb.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh1YWllb2tzdGZzeGdoZ3ZndHpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc2MTMyODEsImV4cCI6MjEwMzE4OTI4MX0.2hWJFMkQeDF4loT2aP32kBJynKMb5Kk_3QKwyg6MFsQ";
-/* ========================================================================= */
-
-const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-/* Facility lists */
-const HOME_FACILITY = "Abucay";
-const facilityOptionsOther = ["Cirian","Maasin","Sogod","Abuyog","Ormoc"];
-const facilityOptionsAll = [HOME_FACILITY, ...facilityOptionsOther];
-
-/* ---------------- Local cache + offline queue ----------------
-   All data lives in localStorage on this device at all times, so the
-   app works fully offline. Any add/edit/delete is saved locally first
-   (instant, no internet needed) and marked "pending" until it's been
-   pushed to Supabase. A background timer — and the moment the device
-   comes back online — flushes pending changes and pulls in whatever
-   teammates added elsewhere. If two people edit the same record while
-   both offline, whoever's change syncs last wins for that record. */
-const CACHE_KEY = "roster_patients_v1";
-const PENDING_KEY = "roster_pending_v1";
-const ORG_CACHE_KEY = "roster_org_v1";
-
-let pendingIds = new Set(JSON.parse(localStorage.getItem(PENDING_KEY) || "[]"));
-function savePending(){ localStorage.setItem(PENDING_KEY, JSON.stringify([...pendingIds])); }
-function saveLocalCache(){ localStorage.setItem(CACHE_KEY, JSON.stringify(state.patients)); }
-function loadLocalCache(){ try{ return JSON.parse(localStorage.getItem(CACHE_KEY) || "[]"); }catch(e){ return []; } }
-
-function cryptoId(){
-  if(window.crypto && crypto.randomUUID) return crypto.randomUUID();
-  return 'p_' + Math.random().toString(36).slice(2,10) + Date.now().toString(36);
-}
-
-function toRemote(p){
-  return {
-    id: p.id, team: p.team, name: p.name, phid: p.phid, status: p.status, facility: p.facility,
-    mca: !!p.mca, date_encoded: p.dateEncoded || null, date_submitted: p.dateSubmitted || null,
-    within24: !!p.within24, claim: p.claim, rice: !!p.rice, lab: !!p.lab, notes: p.notes || '',
-    deleted: !!p.deleted, updated_at: new Date().toISOString()
-  };
-}
-function fromRemote(r){
-  return {
-    id: r.id, team: r.team, name: r.name, phid: r.phid, status: r.status, facility: r.facility,
-    mca: !!r.mca, dateEncoded: r.date_encoded || '', dateSubmitted: r.date_submitted || '',
-    within24: !!r.within24, claim: r.claim, rice: !!r.rice, lab: !!r.lab, notes: r.notes || '',
-    deleted: !!r.deleted
-  };
-}
-
-const syncPill = document.getElementById('syncPill');
-function setSyncStatus(text, mode){ syncPill.textContent = text; syncPill.className = 'sync-pill' + (mode ? ' ' + mode : ''); }
-function timeNow(){ return new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}); }
-
-async function pushOne(p){
-  try{
-    const { error } = await sb.from('patients').upsert(toRemote(p));
-    if(error) throw error;
-    pendingIds.delete(p.id);
-    savePending();
-    return true;
-  }catch(e){ return false; }
-}
-
-async function flushPending(){
-  if(!navigator.onLine || pendingIds.size === 0) return;
-  setSyncStatus('Syncing…', 'busy');
-  for(const id of [...pendingIds]){
-    const p = state.patients.find(x => x.id === id);
-    if(p) await pushOne(p);
-  }
-  savePending();
-  saveLocalCache();
-}
-
-async function pullRemote(){
-  if(!navigator.onLine){ setSyncStatus('Offline — saved on this device', 'err'); return; }
-  setSyncStatus('Syncing…', 'busy');
-  try{
-    const { data, error } = await sb.from('patients').select('*');
-    if(error) throw error;
-    data.forEach(r=>{
-      if(pendingIds.has(r.id)) return; // don't overwrite an unsynced local edit
-      const remote = fromRemote(r);
-      const local = state.patients.find(p => p.id === r.id);
-      if(local) Object.assign(local, remote);
-      else state.patients.push(remote);
-    });
-    state.patients = state.patients.filter(p => !p.deleted || pendingIds.has(p.id));
-    saveLocalCache();
-    renderAll();
-    setSyncStatus('Synced ' + timeNow());
-  }catch(e){
-    console.error(e);
-    setSyncStatus('Sync failed — will retry', 'err');
-  }
-}
-
-async function pushOrg(value){
-  localStorage.setItem(ORG_CACHE_KEY, value);
-  if(!navigator.onLine) return;
-  try{ await sb.from('settings').upsert({ key: 'orgName', value }); }catch(e){ /* retried on next pull cycle indirectly */ }
-}
-async function pullOrg(){
-  const cached = localStorage.getItem(ORG_CACHE_KEY);
-  if(cached) orgInput.value = cached;
-  if(!navigator.onLine) return;
-  try{
-    const { data } = await sb.from('settings').select('value').eq('key','orgName').maybeSingle();
-    if(data && data.value && document.activeElement !== orgInput){
-      orgInput.value = data.value;
-      localStorage.setItem(ORG_CACHE_KEY, data.value);
-    }
-  }catch(e){ /* ignore, offline or not set up yet */ }
-}
-
-/* ---------------- Team staff (who manages each site) ----------------
-   Stored as one JSON blob { teamName: [staff names] } in the same
-   "settings" table used for orgName, under key "teamStaff". Cached
-   locally so it's available offline too. */
-const TEAM_STAFF_CACHE_KEY = "roster_team_staff_v1";
-let teamStaff = {};
-function loadTeamStaffCache(){
-  try{ teamStaff = JSON.parse(localStorage.getItem(TEAM_STAFF_CACHE_KEY) || "{}"); }
-  catch(e){ teamStaff = {}; }
-}
-function saveTeamStaffCache(){ localStorage.setItem(TEAM_STAFF_CACHE_KEY, JSON.stringify(teamStaff)); }
-async function pushTeamStaff(){
-  saveTeamStaffCache();
-  if(!navigator.onLine) return;
-  try{ await sb.from('settings').upsert({ key: 'teamStaff', value: JSON.stringify(teamStaff) }); }catch(e){ /* retried indirectly */ }
-}
-async function pullTeamStaff(){
-  loadTeamStaffCache();
-  if(!navigator.onLine) return;
-  try{
-    const { data } = await sb.from('settings').select('value').eq('key','teamStaff').maybeSingle();
-    if(data && data.value){
-      teamStaff = JSON.parse(data.value);
-      saveTeamStaffCache();
-    }
-  }catch(e){ /* ignore, offline or not set up yet */ }
-}
-
-/* Called after any local add/edit/delete */
-async function persistChange(p){
-  pendingIds.add(p.id);
-  savePending();
-  saveLocalCache();
-  renderAll();
-  const ok = await pushOne(p);
-  if(ok){ saveLocalCache(); renderAll(); setSyncStatus('Synced ' + timeNow()); }
-  else setSyncStatus('Offline — saved on this device', 'err');
-}
-
-function seedData(){
-  return [
-    {id:cryptoId(), team:"Mobile Staff — Site A", name:"DELA CRUZ, JUAN, SANTOS", phid:"1300-0004-937", status:"registered", facility:HOME_FACILITY,
-     mca:true, dateEncoded:"2026-08-12", dateSubmitted:"2026-08-12", within24:false, claim:"t1", rice:true, lab:false, notes:"", deleted:false},
-  ];
-}
-
-let state = { patients: [] };
-
-/* ---------------- Rendering ---------------- */
-const groupsContainer = document.getElementById('groupsContainer');
-const statStrip = document.getElementById('statStrip');
-const legend = document.getElementById('legend');
-const collapsedTeams = new Set();
-
-function getTeams(){
-  const t = new Set(state.patients.map(p=>p.team));
-  pendingEmptyTeams.forEach(x=>t.add(x));
-  return [...t];
-}
-const pendingEmptyTeams = new Set();
-
-function monthLabel(ym){
-  if(!ym) return '';
-  const [y,m] = ym.split('-').map(Number);
-  if(!y || !m) return ym;
-  return new Date(y, m-1, 1).toLocaleString('default', {month:'long', year:'numeric'});
-}
-/* Every patient's "Date encoded" determines which month/year page they
-   belong to. This returns just the non-deleted patients for whichever
-   month is currently selected in the picker (or everyone if no month
-   is chosen). */
-function monthPatients(){
-  const month = document.getElementById('monthFilter').value; // "YYYY-MM" or ""
-  return state.patients.filter(p=>{
-    if(p.deleted) return false;
-    if(!month) return true;
-    return (p.dateEncoded||'').slice(0,7) === month;
-  });
-}
-/* If viewing a specific month, default a new patient's encoded date to
-   the 1st of that month (instead of today) so they show up immediately
-   on the page you're looking at, rather than seeming to vanish. */
-function defaultEncodedDate(){
-  const month = document.getElementById('monthFilter').value;
-  return month ? (month + '-01') : new Date().toISOString().slice(0,10);
-}
-
-function filteredPatients(){
-  const q = document.getElementById('search').value.trim().toLowerCase();
-  const st = document.getElementById('filterStatus').value;
-  const bf = document.getElementById('filterBenefit').value;
-  return monthPatients().filter(p=>{
-    if(q && !((p.name||'').toLowerCase().includes(q) || (p.phid||'').toLowerCase().includes(q))) return false;
-    if(st && p.status !== st) return false;
-    if(bf === 'rice-yes' && !p.rice) return false;
-    if(bf === 'rice-no' && p.rice) return false;
-    if(bf === 'lab-yes' && !p.lab) return false;
-    if(bf === 'lab-no' && p.lab) return false;
-    return true;
-  });
-}
-
-function isDuplicate(phid, excludeId){
-  return state.patients.some(p => !p.deleted && p.phid.trim() === phid.trim() && p.phid.trim() !== "" && p.id !== excludeId);
-}
-/* Searches every team/site in the whole roster (not just the current
-   one) for another patient sharing this PhilHealth ID, and returns
-   the team name that record belongs to — or null if none. */
-function duplicateTeam(phid, excludeId){
-  const clean = (phid||'').trim();
-  if(!clean) return null;
-  const match = state.patients.find(p => !p.deleted && p.id !== excludeId && (p.phid||'').trim() === clean);
-  return match ? match.team : null;
-}
-
-function claimDeadline(dateEncoded){
-  if(!dateEncoded) return null;
-  const d = new Date(dateEncoded + "T00:00:00");
-  d.setDate(d.getDate() + 1);
-  return d;
-}
-function autoFlagMissedClaims(){
-  const now = new Date();
-  let changed = false;
-  state.patients.forEach(p=>{
-    if(p.claim === 'pending' && !p.deleted){
-      const deadline = claimDeadline(p.dateEncoded);
-      if(deadline && now >= deadline){ p.claim = 'missed24'; pendingIds.add(p.id); changed = true; }
-    }
-  });
-  if(changed){ savePending(); saveLocalCache(); flushPending(); }
-  return changed;
-}
-
-const statusLabel = { registered:"Registered", registered_other:"Registered to other DR facility" };
-const statusClass = { registered:"st-registered", registered_other:"st-registered-other" };
-const claimLabel = {pending:"Pending", t1:"T1 Submitted", missed24:"Missed 24h"};
-const claimClass = {pending:"cl-pending", t1:"cl-t1", missed24:"cl-missed24"};
-
-function normalizeFacility(p){
-  if(p.status === 'registered') p.facility = HOME_FACILITY;
-  else if(p.status === 'registered_other'){ if(!facilityOptionsOther.includes(p.facility)) p.facility = facilityOptionsOther[0]; }
-  else if(!p.facility) p.facility = HOME_FACILITY;
-}
-
-function renderStats(){
-  const all = monthPatients();
-  const stats = [
-    ["Total", all.length],
-    ["Registered", all.filter(p=>p.status==='registered').length],
-    ["Other facility", all.filter(p=>p.status==='registered_other').length],
-    ["Rice availed", all.filter(p=>p.rice).length],
-    ["Lab availed", all.filter(p=>p.lab).length],
-    ["Duplicates", all.filter(p=>isDuplicate(p.phid, p.id)).length],
-    ["Unsynced", all.filter(p=>pendingIds.has(p.id)).length],
-  ];
-  statStrip.innerHTML = stats.map(([lbl,num])=>`<div class="stat"><div class="num">${num}</div><div class="lbl">${lbl}</div></div>`).join('');
-}
-
-function renderLegend(){
-  legend.innerHTML = `
-    <span><b>Month view:</b> the picker at the top filters everything to one month, based on each patient's Date encoded — switch months to page between mobile missions</span>
-    <span><b>Status:</b> Registered → Registered to other DR facility</span>
-    <span><b>Facility:</b> "Registered" auto-fills as Abucay. "Registered to other DR facility" lets you pick Cirian, Maasin, Sogod, Abuyog, or Ormoc</span>
-    <span><b>Claim:</b> Pending auto-flags to "Missed 24h" once past 12am the day after encoding</span>
-    <span><b>Unsynced badge:</b> row was changed on this device and hasn't reached the shared database yet — it'll sync automatically once online</span>
-    <span><b>Backup:</b> Export CSV any time for a copy outside the app</span>
-  `;
-}
-
-/* Every checkbox/dropdown change re-renders the whole table by
-   rebuilding innerHTML, which otherwise resets horizontal scroll back
-   to the left. These capture each team's scroll position beforehand
-   and put it back on the freshly-built table. */
-function captureScrollPositions(){
-  const positions = {};
-  document.querySelectorAll('.team-group').forEach(group=>{
-    const head = group.querySelector('.team-head');
-    const wrap = group.querySelector('.table-wrap');
-    if(head && wrap) positions[head.dataset.team] = wrap.scrollLeft;
-  });
-  return positions;
-}
-function restoreScrollPositions(positions){
-  document.querySelectorAll('.team-group').forEach(group=>{
-    const head = group.querySelector('.team-head');
-    const wrap = group.querySelector('.table-wrap');
-    if(head && wrap && positions[head.dataset.team] != null){
-      wrap.scrollLeft = positions[head.dataset.team];
-    }
-  });
-}
-
-function renderAll(){
-  const savedScroll = captureScrollPositions();
-  autoFlagMissedClaims();
-  state.patients.forEach(normalizeFacility);
-  renderStats();
-  renderLegend();
-  const teams = getTeams();
-  const monthList = monthPatients();
-  const list = filteredPatients();
-  populateTeamSelect(teams);
-
-  const monthVal = document.getElementById('monthFilter').value;
-  const teamsToShow = teams.filter(team => monthList.some(p=>p.team===team) || pendingEmptyTeams.has(team));
-
-  groupsContainer.innerHTML = '';
-  if(teamsToShow.length === 0){
-    const msg = monthVal
-      ? `No patients yet for ${monthLabel(monthVal)}. Click “+ Add Team / Site” to start one, then use its “+ Add Patient” button.`
-      : `No patients yet. Click “+ Add Team / Site” to start one, then use its “+ Add Patient” button.`;
-    groupsContainer.innerHTML = `<div class="empty-state">${msg}</div>`;
-    return;
-  }
-  teamsToShow.forEach(team=>{
-    const rows = list.filter(p=>p.team === team);
-    const totalInTeam = monthList.filter(p=>p.team===team).length;
-    const wrap = document.createElement('div');
-    wrap.className = 'team-group';
-    const collapsed = collapsedTeams.has(team);
-    wrap.innerHTML = `
-      <div class="team-head ${collapsed?'collapsed':''}" data-team="${escapeAttr(team)}">
-        <span class="chev">▾</span>
-        <div class="team-title-block">
-          <h2>${escapeHtml(team)}</h2>
-          ${(teamStaff[team] && teamStaff[team].length) ? `<div class="team-staff-line">Managed by: ${escapeHtml(teamStaff[team].join(', '))}</div>` : ''}
+  <div id="overlay">
+    <div class="top-row">
+      <div class="app-badge">
+        <div class="logo">
+          <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="40" height="40" rx="9" fill="#3b82f6"/>
+            <rect x="9" y="17" width="22" height="13" rx="3" fill="#fff"/>
+            <rect x="16" y="13" width="8" height="4.5" rx="1.5" fill="#fff"/>
+            <rect x="26.5" y="18.5" width="3.5" height="3.5" rx="1" fill="#1e3a8a"/>
+            <circle cx="20" cy="23.5" r="6" fill="#1e3a8a"/>
+            <circle cx="20" cy="23.5" r="3.6" fill="#3b82f6"/>
+            <circle cx="18.3" cy="21.8" r="1.1" fill="#fff" fill-opacity="0.85"/>
+          </svg>
         </div>
-        <span class="count">${totalInTeam} patient${totalInTeam===1?'':'s'}</span>
-        <div class="team-tools">
-          <button class="btn btn-primary" style="padding:5px 10px; font-size:12px;" data-add-patient="${escapeAttr(team)}">+ Add Patient</button>
-          <button data-print-team="${escapeAttr(team)}" title="Print just this mobile's roster">🖨 print</button>
-          <button data-edit-team="${escapeAttr(team)}">edit team</button>
-          <button data-delete-team="${escapeAttr(team)}">delete team</button>
-        </div>
+        <span class="brand-main">GeoSnap</span><span class="brand-sub">by Lizerzxc</span>
       </div>
-      <div class="table-wrap" style="${collapsed?'display:none;':''}">
-        <table>
-          <thead>
-            <tr>
-              <th>Patient name</th><th>PhilHealth ID</th><th>Status</th><th>Facility</th>
-              <th>Digital MCA</th><th>Date validated<br>&amp; submitted</th>
-              <th>Within 24h</th><th>Status of claim</th><th>Duplicate tracker</th>
-              <th>Rice availed</th><th>Lab availed</th><th></th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows.length ? rows.map(rowHtml).join('') : `<tr><td colspan="12" class="empty-state">No matching patients in this team.</td></tr>`}
-          </tbody>
-        </table>
+      <div class="pills">
+        <button id="themeBtn" class="icon-chip" aria-label="Toggle theme" title="Light / dark mode">
+          <svg id="themeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        </button>
+        <button id="filtersToggleBtn" class="icon-chip" aria-label="Filters" title="Filters">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7" cy="12" r="3"/><circle cx="17" cy="7" r="3"/><circle cx="17" cy="17" r="3"/></svg>
+        </button>
+        <button id="scheduleBtn" class="icon-chip" aria-label="Shift schedule" title="Shift schedule reminders">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 3.5"/></svg>
+        </button>
+        <div id="netPill" class="pill offline">Offline</div>
+        <div id="accPill" class="pill hidden"></div>
       </div>
-    `;
-    groupsContainer.appendChild(wrap);
-  });
-  autosizeBadgeSelects();
-  restoreScrollPositions(savedScroll);
-}
+    </div>
 
-function measureTextWidth(text, refEl){
-  const span = document.createElement('span');
-  const cs = getComputedStyle(refEl);
-  span.style.visibility = 'hidden'; span.style.position = 'absolute'; span.style.whiteSpace = 'nowrap';
-  span.style.fontSize = cs.fontSize; span.style.fontFamily = cs.fontFamily; span.style.fontWeight = cs.fontWeight;
-  span.style.letterSpacing = cs.letterSpacing; span.style.textTransform = cs.textTransform;
-  span.textContent = text;
-  document.body.appendChild(span);
-  const width = span.offsetWidth;
-  document.body.removeChild(span);
-  const cs2 = cs;
-  const pad = (parseFloat(cs2.paddingLeft)||0)+(parseFloat(cs2.paddingRight)||0)+(parseFloat(cs2.borderLeftWidth)||0)+(parseFloat(cs2.borderRightWidth)||0);
-  return Math.ceil(width + pad + 4);
-}
-function autosizeBadgeSelects(){
-  document.querySelectorAll('select.badge-select').forEach(sel=>{
-    const opt = sel.options[sel.selectedIndex];
-    sel.style.width = measureTextWidth(opt ? opt.textContent : '', sel) + 'px';
-  });
-}
+    <div id="location"><span class="spinner"></span>Getting location…</div>
+    <div id="coords"></div>
+    <div id="meta">
+      <span id="time">--:--:--</span>
+      <span id="heading"></span>
+      <span id="recTimer">00:00</span>
+    </div>
+    <div id="status"></div>
+    <button id="enableLocBtn">Enable Location</button>
+    <a id="mapLink" class="map-link" href="#" target="_blank" rel="noopener">Open in Maps ↗</a>
+  </div>
 
-function facilityCellHtml(p){
-  if(p.status === 'registered') return `<td style="text-align:center"><span class="fac-fixed">${HOME_FACILITY}</span></td>`;
-  const opts = p.status === 'registered_other' ? facilityOptionsOther : facilityOptionsAll;
-  return `<td style="text-align:center"><select class="badge-select fac-select" data-field="facility">
-    ${opts.map(f=>`<option value="${f}" ${p.facility===f?'selected':''}>${f}</option>`).join('')}
-  </select></td>`;
-}
+  <div id="filterStrip"></div>
 
-function rowHtml(p){
-  const dupTeam = duplicateTeam(p.phid, p.id);
-  const dup = !!dupTeam;
-  const pend = pendingIds.has(p.id);
-  return `
-    <tr class="${dup?'dup-row':''} ${pend?'pending-row':''}" data-id="${p.id}">
-      <td class="name">${escapeHtml(p.name)}${pend?'<span class="sync-tag">unsynced</span>':''}</td>
-      <td class="idcell">${escapeHtml(p.phid)}</td>
-      <td style="text-align:center"><select class="badge-select ${statusClass[p.status]}" data-field="status">
-        ${Object.entries(statusLabel).map(([k,v])=>`<option value="${k}" ${p.status===k?'selected':''}>${v}</option>`).join('')}
-      </select></td>
-      ${facilityCellHtml(p)}
-      <td style="text-align:center"><input type="checkbox" data-field="mca" ${p.mca?'checked':''}></td>
-      <td class="datecell"><input type="date" data-field="dateSubmitted" value="${p.dateSubmitted||''}" style="border:none; background:transparent; font-family:inherit; font-size:12px; color:var(--muted); width:126px;"></td>
-      <td style="text-align:center"><input type="checkbox" data-field="within24" ${p.within24?'checked':''}></td>
-      <td style="text-align:center"><select class="badge-select ${claimClass[p.claim]}" data-field="claim">
-        ${Object.entries(claimLabel).map(([k,v])=>`<option value="${k}" ${p.claim===k?'selected':''}>${v}</option>`).join('')}
-      </select></td>
-      <td style="text-align:center">${dup ? `<span class="dup-tag dup-flag" title="Also registered under ${escapeAttr(dupTeam)}">Duplicate at ${escapeHtml(dupTeam)}</span>` : `<span class="dup-tag dup-new">OK</span>`}</td>
-      <td style="text-align:center"><input type="checkbox" data-field="rice" ${p.rice?'checked':''}></td>
-      <td style="text-align:center"><input type="checkbox" data-field="lab" ${p.lab?'checked':''}></td>
-      <td class="row-actions">
-        <button class="icon-btn" data-edit="${p.id}" title="Edit">✎</button>
-        <button class="icon-btn" data-remove="${p.id}" title="Delete">🗑</button>
-      </td>
-    </tr>`;
-}
+  <div id="scheduleModalBackdrop" class="modal-backdrop">
+    <div class="schedule-modal">
+      <h3>Shift Schedule</h3>
+      <p class="modal-sub">Get a reminder to snap a photo at lunch and near shift's end.</p>
+      <div class="schedule-options">
+        <button class="schedule-option" data-schedule="off">Off</button>
+        <button class="schedule-option" data-schedule="7-4">7:00 AM – 4:00 PM<span>Lunch 12:00 · 12:55 · End 4:00</span></button>
+        <button class="schedule-option" data-schedule="8-5">8:00 AM – 5:00 PM<span>Lunch 12:00 · 12:55 · End 5:00</span></button>
+        <button class="schedule-option" data-schedule="9-6">9:00 AM – 6:00 PM<span>Lunch 12:00 · 12:55 · End 6:00</span></button>
+        <button class="schedule-option" data-schedule="custom" id="customScheduleBtn">Custom…<span id="customSummary">Set your own times</span></button>
+      </div>
 
-function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
-function escapeAttr(s){ return escapeHtml(s); }
+      <div id="customTimesForm" class="custom-times-form">
+        <label>Shift start<input type="time" id="customShiftStart"></label>
+        <label>Lunch start<input type="time" id="customLunchStart" value="12:00"></label>
+        <label>Lunch end<input type="time" id="customLunchEnd" value="12:55"></label>
+        <label>Shift end<input type="time" id="customShiftEnd"></label>
+        <button class="actionBtn" id="saveCustomSchedule" style="background:var(--primary);color:#fff;width:100%;margin-top:6px;">Save Custom Schedule</button>
+      </div>
 
-function populateTeamSelect(teams){
-  const sel = document.getElementById('f_team');
-  const current = sel.value;
-  sel.innerHTML = teams.map(t=>`<option value="${escapeAttr(t)}">${escapeHtml(t)}</option>`).join('');
-  if(teams.includes(current)) sel.value = current;
-}
+      <p class="modal-sub" style="margin-top:16px;margin-bottom:8px;">Reminder vibration</p>
+      <div class="vibe-options">
+        <button class="vibe-option" data-vibe="gentle">Gentle</button>
+        <button class="vibe-option" data-vibe="standard">Standard</button>
+        <button class="vibe-option" data-vibe="strong">Strong</button>
+        <button class="vibe-option" data-vibe="silent">Silent</button>
+      </div>
 
-groupsContainer.addEventListener('click', e=>{
-  const teamHead = e.target.closest('.team-head');
-  if(teamHead && !e.target.closest('.team-tools')){
-    const team = teamHead.dataset.team;
-    if(collapsedTeams.has(team)) collapsedTeams.delete(team); else collapsedTeams.add(team);
-    renderAll();
-    return;
-  }
-  if(e.target.dataset.addPatient){
-    openModal(null, e.target.dataset.addPatient);
-    return;
-  }
-  if(e.target.dataset.printTeam){
-    printSingleTeam(e.target.dataset.printTeam);
-    return;
-  }
-  if(e.target.dataset.editTeam){
-    openTeamModal(e.target.dataset.editTeam);
-    return;
-  }
-  if(e.target.dataset.deleteTeam){
-    const team = e.target.dataset.deleteTeam;
-    const count = state.patients.filter(p=>p.team===team && !p.deleted).length;
-    if(confirm(`Delete team "${team}" and its ${count} patient record(s)? This cannot be undone.`)){
-      state.patients.forEach(p=>{ if(p.team===team){ p.deleted = true; pendingIds.add(p.id); } });
-      delete teamStaff[team];
-      pendingEmptyTeams.delete(team);
-      pushTeamStaff();
-      savePending(); saveLocalCache(); renderAll(); flushPending();
+      <button class="actionBtn" id="closeScheduleModal" style="margin-top:16px;background:#2a2a2a;color:#fff;width:100%;">Close</button>
+    </div>
+  </div>
+
+  <div id="controls">
+    <div id="modeToggle">
+      <button id="photoModeBtn" class="active" data-mode="photo">PHOTO</button>
+      <button id="videoModeBtn" data-mode="video">VIDEO</button>
+    </div>
+    <div class="ctrl-row">
+      <button id="gridBtn" class="side-btn" aria-label="Grid" title="Rule of thirds">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+      </button>
+      <button id="switchBtn" class="side-btn" aria-label="Switch camera">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5M4 20L21 3M21 16v5h-5M3 4l7 7"/></svg>
+      </button>
+      <button id="captureBtn" class="not-ready" aria-label="Take photo"></button>
+      <button id="torchBtn" class="side-btn disabled" aria-label="Torch" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2v2"/>
+          <path d="M4.93 4.93l1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/>
+          <path d="M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="5"/>
+        </svg>
+      </button>
+      <img id="lastThumb" alt="Last capture" title="View last capture">
+      <div id="thumbSpacer" style="width:50px;height:50px;"></div>
+    </div>
+  </div>
+
+  <div id="preview">
+    <img id="previewImg" alt="Captured photo">
+    <div id="videoStampWrap">
+      <video id="previewVideo" controls playsinline loop></video>
+      <div id="videoStampOverlay"></div>
+    </div>
+    <div id="hint">Long-press the photo to save<br>or use the buttons below</div>
+    <div id="btnRow">
+      <button class="actionBtn" id="retakeBtn">Retake</button>
+      <button class="actionBtn" id="shareBtn">Share</button>
+      <button class="actionBtn" id="saveBtn">Save</button>
+    </div>
+  </div>
+
+  <script>
+    const video = document.getElementById('camera');
+    const locationEl = document.getElementById('location');
+    const coordsEl = document.getElementById('coords');
+    const timeEl = document.getElementById('time');
+    const headingEl = document.getElementById('heading');
+    const recTimerEl = document.getElementById('recTimer');
+    const statusEl = document.getElementById('status');
+    const enableLocBtn = document.getElementById('enableLocBtn');
+    const netPill = document.getElementById('netPill');
+    const accPill = document.getElementById('accPill');
+    const mapLink = document.getElementById('mapLink');
+    const captureBtn = document.getElementById('captureBtn');
+    const switchBtn = document.getElementById('switchBtn');
+    const torchBtn = document.getElementById('torchBtn');
+    const gridBtn = document.getElementById('gridBtn');
+    const gridEl = document.getElementById('grid');
+    const lastThumb = document.getElementById('lastThumb');
+    const thumbSpacer = document.getElementById('thumbSpacer');
+    const flashEl = document.getElementById('flash');
+    const toastEl = document.getElementById('toast');
+    const preview = document.getElementById('preview');
+    const previewImg = document.getElementById('previewImg');
+    const previewVideo = document.getElementById('previewVideo');
+    const saveBtn = document.getElementById('saveBtn');
+    const shareBtn = document.getElementById('shareBtn');
+    const retakeBtn = document.getElementById('retakeBtn');
+    const themeBtn = document.getElementById('themeBtn');
+    const themeIcon = document.getElementById('themeIcon');
+    const filtersToggleBtn = document.getElementById('filtersToggleBtn');
+    const filterStrip = document.getElementById('filterStrip');
+    const photoModeBtn = document.getElementById('photoModeBtn');
+    const videoModeBtn = document.getElementById('videoModeBtn');
+    const scheduleBtn = document.getElementById('scheduleBtn');
+    const scheduleModalBackdrop = document.getElementById('scheduleModalBackdrop');
+    const closeScheduleModal = document.getElementById('closeScheduleModal');
+    const scheduleOptionBtns = document.querySelectorAll('.schedule-option');
+
+    let currentStream = null;
+    let usingFrontCamera = false;
+    let torchOn = false;
+    let trackWithTorch = null;
+    let gridOn = false;
+    let currentLat = null;
+    let currentLng = null;
+    let currentAccuracy = null;
+    let currentHeading = null;
+    let addressText = 'Location not available';
+    let watchId = null;
+    let lastPhotoDataUrl = null;
+    let lastVideoUrl = null;
+    let lastCaptureType = null;
+    let isOnline = navigator.onLine;
+    let cameraReady = false;
+    let captureMode = 'photo';
+    let isRecording = false;
+
+    const FILTERS = [
+      { id: 'none',    label: 'Normal',  css: 'none' },
+      { id: 'bw',      label: 'B&W',     css: 'grayscale(1) contrast(1.05)' },
+      { id: 'noir',    label: 'Noir',    css: 'grayscale(1) contrast(1.35) brightness(0.9)' },
+      { id: 'sepia',   label: 'Sepia',   css: 'sepia(0.75) contrast(1.05) brightness(1.02)' },
+      { id: 'vintage', label: 'Vintage', css: 'sepia(0.35) contrast(0.92) brightness(1.05) saturate(1.15)' },
+      { id: 'cool',    label: 'Cool',    css: 'hue-rotate(-8deg) saturate(1.2) brightness(1.03) contrast(1.05)' },
+      { id: 'warm',    label: 'Warm',    css: 'hue-rotate(8deg) saturate(1.25) brightness(1.05) contrast(1.03)' },
+      { id: 'vivid',   label: 'Vivid',   css: 'saturate(1.6) contrast(1.15)' }
+    ];
+    let currentFilterId = 'none';
+    function currentFilterCss() {
+      return (FILTERS.find(f => f.id === currentFilterId) || FILTERS[0]).css;
     }
-    return;
-  }
-  if(e.target.dataset.edit){ openModal(e.target.dataset.edit); return; }
-  if(e.target.dataset.remove){
-    if(confirm("Delete this patient record?")){
-      const p = state.patients.find(p=>p.id===e.target.dataset.remove);
-      if(p){ p.deleted = true; persistChange(p); }
-    }
-    return;
-  }
-});
-
-groupsContainer.addEventListener('change', e=>{
-  const row = e.target.closest('tr[data-id]');
-  if(!row) return;
-  const p = state.patients.find(p=>p.id===row.dataset.id);
-  if(!p) return;
-  const field = e.target.dataset.field;
-  if(!field) return;
-  p[field] = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-  if(field === 'status') normalizeFacility(p);
-  persistChange(p);
-});
-
-/* ---------------- Modal ---------------- */
-const backdrop = document.getElementById('modalBackdrop');
-let editingId = null;
-
-function updateFacilityField(preferredValue){
-  const status = document.getElementById('f_status').value;
-  const sel = document.getElementById('f_facility');
-  const hint = document.getElementById('facilityHint');
-  if(status === 'registered'){
-    sel.innerHTML = `<option value="${HOME_FACILITY}">${HOME_FACILITY}</option>`;
-    sel.value = HOME_FACILITY; sel.disabled = true;
-    hint.textContent = 'Auto-set to Abucay for "Registered" status.';
-  } else if(status === 'registered_other'){
-    sel.innerHTML = facilityOptionsOther.map(f=>`<option value="${f}">${f}</option>`).join('');
-    sel.disabled = false;
-    sel.value = (preferredValue && facilityOptionsOther.includes(preferredValue)) ? preferredValue : facilityOptionsOther[0];
-    hint.textContent = 'Choose which DR facility this patient is registered to.';
-  } else {
-    sel.innerHTML = facilityOptionsAll.map(f=>`<option value="${f}">${f}</option>`).join('');
-    sel.disabled = false;
-    sel.value = (preferredValue && facilityOptionsAll.includes(preferredValue)) ? preferredValue : HOME_FACILITY;
-    hint.textContent = '';
-  }
-}
-document.getElementById('f_status').addEventListener('change', ()=> updateFacilityField());
-
-function openModal(id, presetTeam){
-  editingId = id || null;
-  const p = id ? state.patients.find(p=>p.id===id) : null;
-  document.getElementById('modalTitle').textContent = p ? "Edit Patient" : "Add Patient";
-  populateTeamSelect(getTeams().length ? getTeams() : ["Mobile Staff — Site A"]);
-  document.getElementById('f_name').value = p ? p.name : '';
-  document.getElementById('f_phid').value = p ? p.phid : '';
-  document.getElementById('f_team').value = p ? p.team : (presetTeam || getTeams()[0] || '');
-  document.getElementById('f_status').value = p ? p.status : 'registered';
-  updateFacilityField(p ? p.facility : HOME_FACILITY);
-  document.getElementById('f_claim').value = p ? p.claim : 'pending';
-  document.getElementById('f_dateEncoded').value = p ? p.dateEncoded : defaultEncodedDate();
-  document.getElementById('f_dateSubmitted').value = p ? p.dateSubmitted : '';
-  document.getElementById('f_mca').checked = p ? p.mca : false;
-  document.getElementById('f_within24').checked = p ? p.within24 : false;
-  document.getElementById('f_rice').checked = p ? p.rice : false;
-  document.getElementById('f_lab').checked = p ? p.lab : false;
-  document.getElementById('f_notes').value = p ? (p.notes||'') : '';
-  document.getElementById('dupWarning').style.display = 'none';
-  backdrop.classList.add('open');
-  document.getElementById('f_name').focus();
-}
-function closeModal(){ backdrop.classList.remove('open'); editingId = null; }
-
-document.getElementById('cancelBtn').addEventListener('click', closeModal);
-backdrop.addEventListener('click', e=>{ if(e.target===backdrop) closeModal(); });
-document.getElementById('f_phid').addEventListener('input', e=>{
-  const dupTeam = duplicateTeam(e.target.value, editingId);
-  const warn = document.getElementById('dupWarning');
-  if(dupTeam){
-    warn.textContent = `⚠ This PhilHealth ID already exists — Duplicate at ${dupTeam}.`;
-    warn.style.display = 'block';
-  } else {
-    warn.style.display = 'none';
-  }
-});
-
-document.getElementById('saveBtn').addEventListener('click', ()=>{
-  const name = document.getElementById('f_name').value.trim();
-  const phid = document.getElementById('f_phid').value.trim();
-  if(!name){ alert("Patient name is required."); return; }
-  const data = {
-    team: document.getElementById('f_team').value, name, phid,
-    status: document.getElementById('f_status').value,
-    facility: document.getElementById('f_facility').value,
-    claim: document.getElementById('f_claim').value,
-    dateEncoded: document.getElementById('f_dateEncoded').value,
-    dateSubmitted: document.getElementById('f_dateSubmitted').value,
-    mca: document.getElementById('f_mca').checked,
-    within24: document.getElementById('f_within24').checked,
-    rice: document.getElementById('f_rice').checked,
-    lab: document.getElementById('f_lab').checked,
-    notes: document.getElementById('f_notes').value.trim(),
-    deleted: false
-  };
-  let p;
-  if(editingId){ p = state.patients.find(p=>p.id===editingId); Object.assign(p, data); }
-  else { p = Object.assign({id:cryptoId()}, data); state.patients.push(p); }
-  pendingEmptyTeams.delete(data.team);
-  persistChange(p);
-  closeModal();
-});
-
-/* ---------------- Team / Site modal ---------------- */
-const teamModalBackdrop = document.getElementById('teamModalBackdrop');
-let editingTeamOriginalName = null;
-
-function addStaffRow(value=''){
-  const list = document.getElementById('tm_staffList');
-  const row = document.createElement('div');
-  row.className = 'staff-row';
-  row.innerHTML = `<input type="text" class="tm-staff-input" placeholder="Employee name" value="${escapeAttr(value)}"><button class="icon-btn" data-remove-staff title="Remove">🗑</button>`;
-  list.appendChild(row);
-}
-function renderStaffRows(names){
-  const list = document.getElementById('tm_staffList');
-  list.innerHTML = '';
-  (names && names.length ? names : ['']).forEach(name => addStaffRow(name));
-}
-document.getElementById('tm_addStaffBtn').addEventListener('click', ()=> addStaffRow());
-document.getElementById('tm_staffList').addEventListener('click', e=>{
-  if(e.target.dataset.removeStaff !== undefined) e.target.closest('.staff-row').remove();
-});
-
-function openTeamModal(existingName){
-  editingTeamOriginalName = existingName || null;
-  document.getElementById('teamModalTitle').textContent = existingName ? 'Edit Team / Site' : 'Add Team / Site';
-  document.getElementById('tm_name').value = existingName || '';
-  renderStaffRows(existingName ? teamStaff[existingName] : []);
-  teamModalBackdrop.classList.add('open');
-  document.getElementById('tm_name').focus();
-}
-function closeTeamModal(){ teamModalBackdrop.classList.remove('open'); editingTeamOriginalName = null; }
-document.getElementById('tm_cancelBtn').addEventListener('click', closeTeamModal);
-teamModalBackdrop.addEventListener('click', e=>{ if(e.target===teamModalBackdrop) closeTeamModal(); });
-
-document.getElementById('tm_saveBtn').addEventListener('click', ()=>{
-  const name = document.getElementById('tm_name').value.trim();
-  if(!name){ alert("Team / site name is required."); return; }
-  const staffNames = [...document.querySelectorAll('.tm-staff-input')].map(i=>i.value.trim()).filter(Boolean);
-
-  if(editingTeamOriginalName && editingTeamOriginalName !== name){
-    // Renamed: move this team's patients, its pending-empty marker, and its staff list to the new name.
-    state.patients.forEach(p=>{ if(p.team === editingTeamOriginalName){ p.team = name; pendingIds.add(p.id); } });
-    if(pendingEmptyTeams.has(editingTeamOriginalName)){ pendingEmptyTeams.delete(editingTeamOriginalName); pendingEmptyTeams.add(name); }
-    delete teamStaff[editingTeamOriginalName];
-    savePending(); saveLocalCache(); flushPending();
-  } else if(!editingTeamOriginalName && !getTeams().includes(name)){
-    pendingEmptyTeams.add(name);
-  }
-  teamStaff[name] = staffNames;
-  pushTeamStaff();
-  renderAll();
-  closeTeamModal();
-});
-
-document.getElementById('addTeamBtn').addEventListener('click', ()=> openTeamModal(null));
-
-document.getElementById('search').addEventListener('input', renderAll);
-document.getElementById('filterStatus').addEventListener('change', renderAll);
-document.getElementById('filterBenefit').addEventListener('change', renderAll);
-const monthFilterEl = document.getElementById('monthFilter');
-monthFilterEl.value = new Date().toISOString().slice(0,7);
-monthFilterEl.addEventListener('change', renderAll);
-
-/* ---------------- Theme (light / dark) ---------------- */
-const THEME_KEY = 'roster_theme_v1';
-function applyTheme(theme){
-  document.body.classList.toggle('dark', theme === 'dark');
-  const btn = document.getElementById('themeToggle');
-  if(btn) btn.textContent = theme === 'dark' ? '☀️ Light mode' : '🌙 Dark mode';
-}
-(function initTheme(){
-  const saved = localStorage.getItem(THEME_KEY);
-  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  applyTheme(saved || (prefersDark ? 'dark' : 'light'));
-})();
-document.getElementById('themeToggle').addEventListener('click', ()=>{
-  const next = document.body.classList.contains('dark') ? 'light' : 'dark';
-  localStorage.setItem(THEME_KEY, next);
-  applyTheme(next);
-});
-
-/* ---------------- Org name ---------------- */
-const orgInput = document.getElementById('orgName');
-let orgSaveTimer = null;
-orgInput.addEventListener('input', ()=>{
-  clearTimeout(orgSaveTimer);
-  orgSaveTimer = setTimeout(()=> pushOrg(orgInput.value), 500);
-});
-
-/* ---------------- CSV export / import ---------------- */
-const CSV_HEADERS = ["Team","Patient Name","PhilHealth ID","Status","Facility","Digital MCA","Date Encoded","Date Validated & Submitted","Within 24h","Status of Claim","Rice Availed","Lab Availed","Notes"];
-document.getElementById('exportBtn').addEventListener('click', ()=>{
-  const rows = [CSV_HEADERS.join(',')];
-  state.patients.filter(p=>!p.deleted).forEach(p=>{
-    rows.push([csvSafe(p.team), csvSafe(p.name), csvSafe(p.phid), statusLabel[p.status], csvSafe(p.facility||''),
-      p.mca?"YES":"NO", p.dateEncoded||'', p.dateSubmitted||'', p.within24?"YES":"NO",
-      claimLabel[p.claim], p.rice?"YES":"NO", p.lab?"YES":"NO", csvSafe(p.notes||'')].join(','));
-  });
-  const blob = new Blob([rows.join('\n')], {type:'text/csv'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `field-roster-${new Date().toISOString().slice(0,10)}.csv`;
-  a.click(); URL.revokeObjectURL(url);
-});
-function csvSafe(v){ v = String(v ?? ''); return (v.includes(',')||v.includes('"')||v.includes('\n')) ? '"' + v.replace(/"/g,'""') + '"' : v; }
-
-document.getElementById('importBtn').addEventListener('click', ()=> document.getElementById('importFile').click());
-document.getElementById('importFile').addEventListener('change', e=>{
-  const file = e.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = evt=>{
-    try{
-      const lines = evt.target.result.split(/\r?\n/).filter(l=>l.trim());
-      lines.shift();
-      const statusRev = Object.fromEntries(Object.entries(statusLabel).map(([k,v])=>[v.toLowerCase(),k]));
-      const claimRev = Object.fromEntries(Object.entries(claimLabel).map(([k,v])=>[v.toLowerCase(),k]));
-      let added = 0;
-      lines.forEach(line=>{
-        const cols = parseCsvLine(line);
-        if(cols.length < 13) return;
-        const [team,name,phid,status,facility,mca,dateEnc,dateSub,within24,claim,rice,lab,notes] = cols;
-        const resolvedStatus = statusRev[(status||'').toLowerCase()] || 'registered';
-        const p = { id: cryptoId(), team: team||'Imported', name, phid, status: resolvedStatus,
-          facility: facility || (resolvedStatus === 'registered' ? HOME_FACILITY : ''),
-          mca: (mca||'').toUpperCase()==='YES', dateEncoded: dateEnc||'', dateSubmitted: dateSub||'',
-          within24: (within24||'').toUpperCase()==='YES', claim: claimRev[(claim||'').toLowerCase()] || 'pending',
-          rice: (rice||'').toUpperCase()==='YES', lab: (lab||'').toUpperCase()==='YES', notes: notes||'', deleted:false };
-        state.patients.push(p);
-        pendingIds.add(p.id);
-        added++;
+    function buildFilterStrip() {
+      filterStrip.innerHTML = '';
+      FILTERS.forEach(f => {
+        const btn = document.createElement('button');
+        btn.className = 'filter-chip' + (f.id === currentFilterId ? ' active' : '');
+        btn.dataset.id = f.id;
+        btn.innerHTML = `<div class="swatch" style="filter:${f.css}"><img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Crect width='60' height='60' fill='%23888'/%3E%3Ccircle cx='30' cy='24' r='11' fill='%23555'/%3E%3Crect x='10' y='38' width='40' height='16' fill='%23666'/%3E%3C/svg%3E" alt=""></div><span>${f.label}</span>`;
+        btn.addEventListener('click', () => {
+          currentFilterId = f.id;
+          video.style.filter = currentFilterCss();
+          [...filterStrip.children].forEach(c => c.classList.toggle('active', c.dataset.id === f.id));
+          vibrate(12);
+        });
+        filterStrip.appendChild(btn);
       });
-      savePending(); saveLocalCache(); renderAll(); flushPending();
-      alert(`Imported ${added} record(s).`);
-    }catch(err){ alert("Could not read that CSV file. Make sure it was exported from this tool."); console.error(err); }
-    e.target.value = '';
-  };
-  reader.readAsText(file);
-});
-function parseCsvLine(line){
-  const out = []; let cur=''; let inQ=false;
-  for(let i=0;i<line.length;i++){
-    const c = line[i];
-    if(inQ){ if(c==='"' && line[i+1]==='"'){ cur+='"'; i++; } else if(c==='"'){ inQ=false; } else cur+=c; }
-    else { if(c==='"') inQ=true; else if(c===','){ out.push(cur); cur=''; } else cur+=c; }
-  }
-  out.push(cur);
-  return out;
-}
+    }
+    filtersToggleBtn.addEventListener('click', () => {
+      const showing = filterStrip.classList.toggle('show');
+      filtersToggleBtn.classList.toggle('active', showing);
+      vibrate(12);
+    });
 
-document.getElementById('printBtn').addEventListener('click', ()=> window.print());
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) metaTheme.setAttribute('content', theme === 'light' ? '#f5f5f5' : '#000000');
+      themeIcon.innerHTML = theme === 'light'
+        ? '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
+        : '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>';
+      try { localStorage.setItem('gpscam_theme', theme); } catch {}
+    }
+    themeBtn.addEventListener('click', () => {
+      const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+      applyTheme(cur === 'light' ? 'dark' : 'light');
+      vibrate(12);
+    });
 
-/* Prints just one mobile team's table instead of the whole page: every
-   other team-group is hidden (print-only, via .print-hide) right
-   before printing, then restored once the print dialog closes. */
-function printSingleTeam(team){
-  document.querySelectorAll('.team-group').forEach(g=>{
-    const head = g.querySelector('.team-head');
-    if(head && head.dataset.team !== team) g.classList.add('print-hide');
-  });
-  window.print();
-}
-function clearPrintIsolation(){
-  document.querySelectorAll('.team-group.print-hide').forEach(g=> g.classList.remove('print-hide'));
-}
-window.addEventListener('afterprint', clearPrintIsolation);
-document.getElementById('syncNowBtn').addEventListener('click', ()=>{ flushPending().then(pullRemote); });
+    let lastAddressFetchTime = 0;
+    let lastAddressFetchCoords = null;
+    let addressFetchInFlight = false;
+    const ADDRESS_FETCH_MIN_INTERVAL_MS = 15000;
+    const ADDRESS_FETCH_MIN_DISTANCE_M = 30;
 
-/* ---------------- Auth ---------------- */
-const loginOverlay = document.getElementById('loginOverlay');
-const loginErr = document.getElementById('loginErr');
-const whoAmI = document.getElementById('whoAmI');
+    const STORAGE_KEY = 'gpscam_lastloc';
+    const PHOTO_KEY = 'gpscam_lastphoto';
 
-document.getElementById('loginBtn').addEventListener('click', async ()=>{
-  const email = document.getElementById('loginEmail').value.trim();
-  const password = document.getElementById('loginPassword').value;
-  const btn = document.getElementById('loginBtn');
-  btn.disabled = true; btn.textContent = 'Signing in…'; loginErr.style.display = 'none';
-  const { data, error } = await sb.auth.signInWithPassword({ email, password });
-  btn.disabled = false; btn.textContent = 'Sign in';
-  if(error){ loginErr.textContent = error.message; loginErr.style.display = 'block'; return; }
-  onSignedIn(data.session);
-});
-document.getElementById('logoutBtn').addEventListener('click', async ()=>{
-  await sb.auth.signOut();
-  location.reload();
-});
+    function toast(msg, ms = 2200) {
+      toastEl.textContent = msg;
+      toastEl.classList.add('show');
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => toastEl.classList.remove('show'), ms);
+    }
+    function vibrate(ms = 30) { if (navigator.vibrate) navigator.vibrate(ms); }
+    function setOnlineUI(online) {
+      isOnline = online;
+      netPill.textContent = online ? 'Online' : 'Offline';
+      netPill.className = 'pill ' + (online ? 'online' : 'offline');
+    }
+    function haversineMeters(lat1, lon1, lat2, lon2) {
+      const R = 6371000;
+      const toRad = (d) => d * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat / 2) ** 2 +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+      return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+    function loadCachedLocation() {
+      try { const raw = localStorage.getItem(STORAGE_KEY); return raw ? JSON.parse(raw) : null; } catch { return null; }
+    }
+    function saveLocationCache() {
+      if (currentLat == null) return;
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          lat: currentLat, lng: currentLng, accuracy: currentAccuracy,
+          address: addressText, heading: currentHeading, ts: Date.now()
+        }));
+      } catch {}
+    }
+    function applyCachedLocation() {
+      const cached = loadCachedLocation();
+      if (!cached) return false;
+      currentLat = cached.lat; currentLng = cached.lng; currentAccuracy = cached.accuracy;
+      addressText = cached.address || 'Last known location'; currentHeading = cached.heading;
+      locationEl.textContent = addressText + (isOnline ? '' : ' (cached)');
+      coordsEl.innerHTML = `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)} <button class="copy-btn" id="copyCoords">Copy</button>`;
+      bindCopy(); setAccuracyUI(currentAccuracy); updateHeadingUI();
+      mapLink.href = `https://www.google.com/maps?q=${currentLat},${currentLng}`;
+      mapLink.style.display = 'inline-block'; enableLocBtn.style.display = 'none';
+      return true;
+    }
+    function bindCopy() {
+      const btn = document.getElementById('copyCoords');
+      if (btn) btn.onclick = () => {
+        const text = `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)}`;
+        if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => toast('Coordinates copied'));
+        else toast(text);
+        vibrate(20);
+      };
+    }
 
-async function onSignedIn(session){
-  loginOverlay.classList.add('hidden');
-  whoAmI.textContent = session.user.email;
-  await initApp();
-}
+    setOnlineUI(navigator.onLine);
+    window.addEventListener('online', () => { setOnlineUI(true); toast('Back online'); updateLocation(); });
+    window.addEventListener('offline', () => { setOnlineUI(false); toast('You are offline'); });
 
-/* ---------------- Init ---------------- */
-async function initApp(){
-  setSyncStatus('Loading…', 'busy');
-  state.patients = loadLocalCache();
-  loadTeamStaffCache();
-  if(state.patients.length === 0 && !navigator.onLine) state.patients = seedData();
-  renderAll();
-  await pullOrg();
-  await pullTeamStaff();
-  renderAll();
-  if(navigator.onLine){ await flushPending(); await pullRemote(); }
-  else setSyncStatus('Offline — saved on this device', 'err');
+    async function startCamera() {
+      cameraReady = false;
+      captureBtn.classList.add('not-ready');
+      if (currentStream) {
+        currentStream.getTracks().forEach(t => t.stop());
+        currentStream = null; trackWithTorch = null;
+        torchOn = false;
+      }
+      try {
+        currentStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: usingFrontCamera ? 'user' : 'environment', width: { ideal: 1920 }, height: { ideal: 1080 } },
+          audio: false
+        });
+        video.srcObject = currentStream;
+        video.style.filter = currentFilterCss();
+        if (usingFrontCamera) {
+          video.style.transform = 'scaleX(-1)';
+          video.style.webkitTransform = 'scaleX(-1)';
+        } else {
+          video.style.transform = 'none';
+          video.style.webkitTransform = 'none';
+        }
+        const track = currentStream.getVideoTracks()[0];
+        const caps = track.getCapabilities?.() || {};
+        torchBtn.style.display = 'flex';
+        if (caps.torch && !usingFrontCamera) {
+          trackWithTorch = track;
+          torchBtn.disabled = false;
+          torchBtn.classList.remove('disabled');
+        } else {
+          trackWithTorch = null;
+          torchBtn.disabled = true;
+          torchBtn.classList.add('disabled');
+          if (torchOn) { torchOn = false; torchBtn.classList.remove('torch-on'); }
+        }
+        updateThumbLayout();
+      } catch (err) {
+        statusEl.textContent = 'Camera: ' + (err.message || 'permission denied');
+        toast('Camera access needed');
+      }
+    }
+    video.addEventListener('loadedmetadata', () => {
+      cameraReady = true;
+      captureBtn.classList.remove('not-ready');
+    });
 
-  setInterval(()=>{ flushPending().then(pullRemote); pullTeamStaff().then(renderAll); }, 20000);
-  setInterval(()=>{ if(autoFlagMissedClaims()) renderAll(); }, 60000);
-  window.addEventListener('online', ()=>{ flushPending().then(pullRemote); });
-  window.addEventListener('offline', ()=> setSyncStatus('Offline — saved on this device', 'err'));
-}
+    function updateThumbLayout() {
+      const hasThumb = lastThumb.classList.contains('show');
+      const hasTorch = torchBtn.style.display !== 'none';
+      thumbSpacer.style.display = (hasThumb || hasTorch) ? 'none' : 'block';
+    }
 
-(async function boot(){
-  const { data } = await sb.auth.getSession();
-  if(data.session){ onSignedIn(data.session); }
-  else { loginOverlay.classList.remove('hidden'); }
-})();
+    switchBtn.addEventListener('click', () => {
+      if (isRecording) { toast('Stop recording first'); return; }
+      usingFrontCamera = !usingFrontCamera; vibrate(15); startCamera();
+    });
+    torchBtn.addEventListener('click', async () => {
+      if (!trackWithTorch) return;
+      torchOn = !torchOn;
+      try {
+        await trackWithTorch.applyConstraints({ advanced: [{ torch: torchOn }] });
+        torchBtn.classList.toggle('torch-on', torchOn); vibrate(20);
+      } catch { toast('Torch not available'); }
+    });
+    gridBtn.addEventListener('click', () => {
+      gridOn = !gridOn; gridEl.classList.toggle('show', gridOn);
+      gridBtn.classList.toggle('active', gridOn); vibrate(15);
+    });
 
-if('serviceWorker' in navigator){
-  window.addEventListener('load', ()=> navigator.serviceWorker.register('./sw.js').catch(()=>{}));
-}
-</script>
+    function setMode(mode) {
+      if (isRecording) { toast('Stop recording first'); return; }
+      captureMode = mode;
+      photoModeBtn.classList.toggle('active', mode === 'photo');
+      videoModeBtn.classList.toggle('active', mode === 'video');
+      captureBtn.classList.toggle('video-mode', mode === 'video');
+      captureBtn.setAttribute('aria-label', mode === 'photo' ? 'Take photo' : 'Record video');
+    }
+    photoModeBtn.addEventListener('click', () => { setMode('photo'); vibrate(12); });
+    videoModeBtn.addEventListener('click', () => { setMode('video'); vibrate(12); });
+
+    async function getAddress(lat, lng) {
+      if (!navigator.onLine) return null;
+      try {
+        const url = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`;
+        const res = await fetch(url, { headers: { 'Accept-Language': 'en', 'User-Agent': 'GeoCam-WebApp/1.0' } });
+        if (!res.ok) throw new Error('lookup failed');
+        const data = await res.json();
+        if (data?.address) {
+          const a = data.address; const parts = [];
+          const local = a.suburb || a.neighbourhood || a.village || a.hamlet || a.barangay || a.road;
+          if (local) parts.push(local);
+          if (a.city || a.town || a.municipality) parts.push(a.city || a.town || a.municipality);
+          if (a.state || a.province || a.region) parts.push(a.state || a.province || a.region);
+          if (a.country) parts.push(a.country);
+          return parts.filter(Boolean).join(', ') || data.display_name;
+        }
+        return data.display_name || null;
+      } catch { return null; }
+    }
+
+    function maybeFetchAddress(lat, lng) {
+      const now = Date.now();
+      const movedFar = lastAddressFetchCoords &&
+        haversineMeters(lat, lng, lastAddressFetchCoords.lat, lastAddressFetchCoords.lng) > ADDRESS_FETCH_MIN_DISTANCE_M;
+      const isFirstFetch = !lastAddressFetchCoords;
+      const timeOk = now - lastAddressFetchTime > ADDRESS_FETCH_MIN_INTERVAL_MS;
+
+      if (addressFetchInFlight) return;
+      if (!isFirstFetch && !movedFar && !timeOk) return;
+
+      addressFetchInFlight = true;
+      lastAddressFetchTime = now;
+      lastAddressFetchCoords = { lat, lng };
+
+      if (!addressText || addressText.includes('not available') || addressText.includes('Getting')) {
+        locationEl.innerHTML = '<span class="spinner"></span>Getting address…';
+      }
+      getAddress(lat, lng).then(addr => {
+        addressFetchInFlight = false;
+        if (addr) { addressText = addr; locationEl.textContent = addr; }
+        else if (!addressText || addressText.startsWith('Getting') || addressText.includes('not available')) {
+          addressText = isOnline ? 'Address unavailable' : 'Offline — coordinates only';
+          locationEl.textContent = addressText;
+        }
+        saveLocationCache();
+      }).catch(() => { addressFetchInFlight = false; });
+    }
+
+    function setAccuracyUI(meters) {
+      if (meters == null) { accPill.classList.add('hidden'); return; }
+      accPill.classList.remove('hidden');
+      const m = Math.round(meters);
+      accPill.textContent = `±${m} m`;
+      accPill.className = 'pill ' + (m <= 20 ? 'acc-good' : m <= 50 ? 'acc-ok' : 'acc-poor');
+      captureBtn.classList.toggle('locked', m <= 20);
+    }
+    function updateHeadingUI() {
+      if (currentHeading != null && !isNaN(currentHeading)) {
+        const dirs = ['N','NE','E','SE','S','SW','W','NW'];
+        const ix = Math.round(currentHeading / 45) % 8;
+        headingEl.textContent = `${dirs[ix]} ${Math.round(currentHeading)}°`;
+      } else headingEl.textContent = '';
+    }
+    function showLocationError(msg) {
+      if (applyCachedLocation()) { statusEl.textContent = msg + ' — showing last known'; return; }
+      locationEl.textContent = msg; coordsEl.textContent = ''; statusEl.textContent = '';
+      enableLocBtn.style.display = 'block'; mapLink.style.display = 'none';
+      setAccuracyUI(null); headingEl.textContent = ''; addressText = msg;
+      currentLat = currentLng = currentAccuracy = null;
+    }
+    function applyPosition(pos) {
+      currentLat = pos.coords.latitude; currentLng = pos.coords.longitude; currentAccuracy = pos.coords.accuracy;
+      if (pos.coords.heading != null && !isNaN(pos.coords.heading)) currentHeading = pos.coords.heading;
+      coordsEl.innerHTML = `${currentLat.toFixed(6)}, ${currentLng.toFixed(6)} <button class="copy-btn" id="copyCoords">Copy</button>`;
+      bindCopy(); setAccuracyUI(currentAccuracy); updateHeadingUI();
+      enableLocBtn.style.display = 'none'; statusEl.textContent = '';
+      mapLink.href = `https://www.google.com/maps?q=${currentLat},${currentLng}`; mapLink.style.display = 'inline-block';
+      maybeFetchAddress(currentLat, currentLng);
+      saveLocationCache();
+    }
+    function updateLocation() {
+      if (!navigator.geolocation) { showLocationError('Geolocation not supported'); return; }
+      enableLocBtn.style.display = 'none';
+      if (!currentLat) locationEl.innerHTML = '<span class="spinner"></span>Getting location…';
+      statusEl.textContent = '';
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          applyPosition(pos);
+          if (watchId == null) {
+            watchId = navigator.geolocation.watchPosition(applyPosition, () => {},
+              { enableHighAccuracy: true, maximumAge: 10000, timeout: 25000 });
+          }
+        },
+        (err) => {
+          if (err.code === 1) showLocationError('Location permission needed');
+          else if (err.code === 2) showLocationError('Turn on GPS / Location');
+          else if (err.code === 3) showLocationError('Location timeout');
+          else showLocationError('Location error');
+        },
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 5000 }
+      );
+    }
+    enableLocBtn.addEventListener('click', updateLocation);
+
+    function updateTime() {
+      timeEl.textContent = new Date().toLocaleString(undefined, {
+        weekday: 'short', month: 'short', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      });
+    }
+
+    function flash() {
+      flashEl.style.opacity = '0.9';
+      requestAnimationFrame(() => setTimeout(() => { flashEl.style.opacity = '0'; }, 50));
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.arcTo(x + w, y, x + w, y + h, r);
+      ctx.arcTo(x + w, y + h, x, y + h, r);
+      ctx.arcTo(x, y + h, x, y, r);
+      ctx.arcTo(x, y, x + w, y, r);
+      ctx.closePath();
+    }
+    function drawStamp(ctx, width) {
+      const now = new Date().toLocaleString(undefined, {
+        year: 'numeric', month: 'short', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      });
+      const locLine = addressText || 'Location not available';
+      let coordLine = '';
+      if (currentLat != null) {
+        coordLine = `${currentLat.toFixed(5)}, ${currentLng.toFixed(5)}`;
+        if (currentAccuracy != null) coordLine += `  ±${Math.round(currentAccuracy)}m`;
+        if (currentHeading != null && !isNaN(currentHeading)) coordLine += `  ${Math.round(currentHeading)}°`;
+      }
+      const pad = Math.max(22, Math.round(width * 0.022));
+      const stampW = Math.min(width - pad * 2, Math.round(width * 0.9));
+      const lineH = Math.round(width * 0.036);
+      const titleSize = Math.round(width * 0.04);
+      const bodySize = Math.round(width * 0.03);
+      const labelSize = Math.round(bodySize * 0.85);
+      const stampH = coordLine ? Math.round(lineH * 4.7) : Math.round(lineH * 3.7);
+      const innerPad = Math.round(pad * 1.15);
+
+      ctx.fillStyle = 'rgba(0,0,0,0.72)';
+      roundRect(ctx, pad, pad, stampW, stampH, 14); ctx.fill();
+      ctx.fillStyle = '#3b82f6'; ctx.fillRect(pad, pad, 7, stampH);
+
+      ctx.fillStyle = 'rgba(255,255,255,0.68)';
+      ctx.font = `700 ${labelSize}px -apple-system, BlinkMacSystemFont, Arial`;
+      ctx.fillText('GEOSNAP' + (isOnline ? '' : ' · OFFLINE'), pad + innerPad, pad + lineH * 1.05);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = `bold ${titleSize}px -apple-system, BlinkMacSystemFont, Arial`;
+      const maxChars = Math.floor((stampW - innerPad * 2) / (titleSize * 0.52));
+      const truncated = locLine.length > maxChars ? locLine.slice(0, maxChars - 1) + '…' : locLine;
+      ctx.fillText(truncated, pad + innerPad, pad + lineH * 2.25);
+
+      ctx.font = `600 ${bodySize}px -apple-system, BlinkMacSystemFont, Arial`;
+      ctx.fillStyle = 'rgba(255,255,255,0.9)';
+      let y = pad + lineH * 3.4;
+      if (coordLine) { ctx.fillText(coordLine, pad + innerPad, y); y += lineH * 1.05; }
+      ctx.fillText(now, pad + innerPad, y);
+    }
+
+    function capturePhoto() {
+      if (!cameraReady || !video.videoWidth) { toast('Camera still loading…'); return; }
+      vibrate(40); flash();
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth; canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.filter = currentFilterCss();
+      if (usingFrontCamera) { ctx.translate(canvas.width, 0); ctx.scale(-1, 1); }
+      ctx.drawImage(video, 0, 0);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.filter = 'none';
+
+      drawStamp(ctx, canvas.width);
+
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+      lastPhotoDataUrl = dataUrl; lastCaptureType = 'photo';
+      showPhotoPreview(dataUrl);
+      lastThumb.src = dataUrl; lastThumb.classList.add('show'); updateThumbLayout();
+      try { localStorage.setItem(PHOTO_KEY, dataUrl); } catch {}
+    }
+
+    let mediaRecorder, recordedChunks = [], recTimerInterval, recStartTime, recordingStampSnapshot = null;
+
+    function pickMimeType() {
+      const candidates = [
+        'video/webm;codecs=vp9', 'video/webm;codecs=vp8',
+        'video/webm', 'video/mp4;codecs=h264', 'video/mp4'
+      ];
+      for (const c of candidates) {
+        if (window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(c)) return c;
+      }
+      return '';
+    }
+
+    function stampLinesFromSnapshot(snap) {
+      const lines = [snap.address || 'Location not available'];
+      if (snap.lat != null) {
+        let coordLine = `${snap.lat.toFixed(5)}, ${snap.lng.toFixed(5)}`;
+        if (snap.accuracy != null) coordLine += `  ±${Math.round(snap.accuracy)}m`;
+        if (snap.heading != null && !isNaN(snap.heading)) coordLine += `  ${Math.round(snap.heading)}°`;
+        lines.push(coordLine);
+      }
+      lines.push(snap.startedAt.toLocaleString(undefined, {
+        year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit'
+      }));
+      return lines;
+    }
+
+    function showPhotoPreview(dataUrl) {
+      previewVideo.pause();
+      document.getElementById('videoStampWrap').classList.remove('show');
+      previewImg.src = dataUrl; previewImg.style.display = 'block';
+      preview.style.display = 'flex';
+    }
+
+    function showVideoPreview(url) {
+      previewImg.style.display = 'none';
+      previewVideo.src = url;
+      const wrap = document.getElementById('videoStampWrap');
+      wrap.classList.add('show');
+      const overlay = document.getElementById('videoStampOverlay');
+      overlay.innerHTML = recordingStampSnapshot
+        ? stampLinesFromSnapshot(recordingStampSnapshot).map((l, i) => `<div class="${i === 0 ? 'vs-title' : 'vs-sub'}">${l}</div>`).join('')
+        : '';
+      preview.style.display = 'flex';
+      previewVideo.play().catch(() => {});
+    }
+
+    function updateRecTimer() {
+      const secs = Math.floor((Date.now() - recStartTime) / 1000);
+      const m = String(Math.floor(secs / 60)).padStart(2, '0');
+      const s = String(secs % 60).padStart(2, '0');
+      recTimerEl.textContent = `${m}:${s}`;
+    }
+
+    function startRecording() {
+      if (!cameraReady || !currentStream) { toast('Camera still loading…'); return; }
+      const mime = pickMimeType();
+      if (!mime) { toast('Video recording not supported on this browser'); return; }
+
+      recordedChunks = [];
+      try {
+        mediaRecorder = new MediaRecorder(currentStream, { mimeType: mime, videoBitsPerSecond: 4_000_000 });
+      } catch (err) {
+        toast('Could not start recording'); return;
+      }
+      mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) recordedChunks.push(e.data); };
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(recordedChunks, { type: mime.split(';')[0] });
+        const url = URL.createObjectURL(blob);
+        lastVideoUrl = url; lastCaptureType = 'video';
+        showVideoPreview(url);
+      };
+
+      recordingStampSnapshot = {
+        address: addressText, lat: currentLat, lng: currentLng,
+        accuracy: currentAccuracy, heading: currentHeading, startedAt: new Date()
+      };
+
+      isRecording = true;
+      recStartTime = Date.now();
+      recTimerEl.classList.add('show'); recTimerEl.textContent = '00:00';
+      recTimerInterval = setInterval(updateRecTimer, 1000);
+      captureBtn.classList.add('recording');
+      switchBtn.style.opacity = '0.4'; switchBtn.style.pointerEvents = 'none';
+
+      mediaRecorder.start(250);
+      vibrate(40);
+      toast('Recording…', 1200);
+    }
+
+    function stopRecording() {
+      if (!isRecording) return;
+      isRecording = false;
+      clearInterval(recTimerInterval);
+      recTimerEl.classList.remove('show');
+      captureBtn.classList.remove('recording');
+      switchBtn.style.opacity = ''; switchBtn.style.pointerEvents = '';
+      vibrate([30, 40, 30]);
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        try { mediaRecorder.requestData(); } catch {}
+        mediaRecorder.stop();
+      }
+    }
+
+    captureBtn.addEventListener('click', () => {
+      if (captureMode === 'photo') {
+        capturePhoto();
+      } else {
+        if (isRecording) stopRecording(); else startRecording();
+      }
+    });
+
+    lastThumb.addEventListener('click', () => {
+      if (lastCaptureType === 'video' && lastVideoUrl) {
+        showVideoPreview(lastVideoUrl); vibrate(15);
+      } else if (lastPhotoDataUrl) {
+        showPhotoPreview(lastPhotoDataUrl); vibrate(15);
+      }
+    });
+
+    async function shareOrSave(preferShare) {
+      const isVideo = lastCaptureType === 'video' && previewVideo.style.display !== 'none';
+      const src = isVideo ? previewVideo.src : previewImg.src;
+      const ext = isVideo ? 'webm' : 'jpg';
+      const type = isVideo ? 'video/webm' : 'image/jpeg';
+      try {
+        const blob = await (await fetch(src)).blob();
+        const file = new File([blob], `GeoSnap_${Date.now()}.${ext}`, { type });
+        if (preferShare && navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: 'GeoSnap' }); toast('Shared'); return;
+        }
+      } catch (_) {}
+      const link = document.createElement('a');
+      link.href = src; link.download = `GeoSnap_${Date.now()}.${ext}`; link.click();
+      toast('Saved to downloads'); vibrate(25);
+    }
+    shareBtn.addEventListener('click', () => shareOrSave(true));
+    saveBtn.addEventListener('click', () => shareOrSave(false));
+    retakeBtn.addEventListener('click', () => { preview.style.display = 'none'; vibrate(15); });
+
+    try {
+      const savedPhoto = localStorage.getItem(PHOTO_KEY);
+      if (savedPhoto) { lastPhotoDataUrl = savedPhoto; lastCaptureType = 'photo'; lastThumb.src = savedPhoto; lastThumb.classList.add('show'); }
+    } catch {}
+
+    applyTheme((() => { try { return localStorage.getItem('gpscam_theme') || 'dark'; } catch { return 'dark'; } })());
+    buildFilterStrip();
+    applyCachedLocation();
+    startCamera(); updateLocation(); updateTime(); setInterval(updateTime, 1000); updateThumbLayout();
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then((reg) => setInterval(() => reg.update(), 60 * 60 * 1000))
+          .catch((err) => console.warn('SW registration failed:', err));
+      });
+    }
+
+    // ---- Shift schedule reminders (server-driven via Cloudflare Worker) ----
+    const SCHEDULE_KEY = 'gpscam_schedule';
+    const CUSTOM_TIMES_KEY = 'gpscam_custom_times';
+    const VIBE_KEY = 'gpscam_vibe';
+
+    const PUSH_API_BASE = 'https://geosnap-push.liz-geosnap.workers.dev';
+    const VAPID_PUBLIC_KEY = 'BCDs_3REZnxqWkaQ6cSUcDvIaiYSVU0X5XV8vwIhOhzCx8fvaeYxrM0bsD2Rp2U2cnHp2B0BgCAMn06Ly4-50p0';
+
+    const customScheduleBtn = document.getElementById('customScheduleBtn');
+    const customSummary = document.getElementById('customSummary');
+    const customTimesForm = document.getElementById('customTimesForm');
+    const customShiftStart = document.getElementById('customShiftStart');
+    const customLunchStart = document.getElementById('customLunchStart');
+    const customLunchEnd = document.getElementById('customLunchEnd');
+    const customShiftEnd = document.getElementById('customShiftEnd');
+    const saveCustomScheduleBtn = document.getElementById('saveCustomSchedule');
+    const vibeOptionBtns = document.querySelectorAll('.vibe-option');
+
+    function urlBase64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+      const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const rawData = atob(base64);
+      return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
+    }
+
+    function getSavedSchedule() {
+      try { return localStorage.getItem(SCHEDULE_KEY) || 'off'; } catch { return 'off'; }
+    }
+    function saveSchedule(id) {
+      try { localStorage.setItem(SCHEDULE_KEY, id); } catch {}
+    }
+    function getSavedCustomTimes() {
+      try { return JSON.parse(localStorage.getItem(CUSTOM_TIMES_KEY) || 'null'); } catch { return null; }
+    }
+    function saveCustomTimes(times) {
+      try { localStorage.setItem(CUSTOM_TIMES_KEY, JSON.stringify(times)); } catch {}
+    }
+    function getSavedVibe() {
+      try { return localStorage.getItem(VIBE_KEY) || 'standard'; } catch { return 'standard'; }
+    }
+    function saveVibe(id) {
+      try { localStorage.setItem(VIBE_KEY, id); } catch {}
+    }
+
+    function updateScheduleUI() {
+      const active = getSavedSchedule();
+      scheduleOptionBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.schedule === active));
+      scheduleBtn.classList.toggle('active', active !== 'off');
+
+      const savedTimes = getSavedCustomTimes();
+      if (active === 'custom' && savedTimes) {
+        customSummary.textContent = `Lunch ${savedTimes.lunchStart} · ${savedTimes.lunchEnd} · End ${savedTimes.shiftEnd}`;
+        customTimesForm.classList.add('show');
+        if (savedTimes.shiftStart) customShiftStart.value = savedTimes.shiftStart;
+        customLunchStart.value = savedTimes.lunchStart;
+        customLunchEnd.value = savedTimes.lunchEnd;
+        customShiftEnd.value = savedTimes.shiftEnd;
+      } else {
+        customSummary.textContent = 'Set your own times';
+      }
+
+      const activeVibe = getSavedVibe();
+      vibeOptionBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.vibe === activeVibe));
+    }
+
+    async function getPushSubscription() {
+      const reg = await navigator.serviceWorker.ready;
+      let sub = await reg.pushManager.getSubscription();
+      if (!sub) {
+        sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+        });
+      }
+      return sub;
+    }
+
+    async function sendScheduleToServer(scheduleId, customTimes) {
+      const sub = await getPushSubscription();
+      const tzOffsetMinutes = new Date().getTimezoneOffset();
+      const vibrateId = getSavedVibe();
+      await fetch(`${PUSH_API_BASE}/api/subscribe`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscription: sub.toJSON(), scheduleId, customTimes, vibrateId, tzOffsetMinutes })
+      });
+    }
+
+    async function removeScheduleFromServer() {
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        const sub = await reg.pushManager.getSubscription();
+        if (sub) {
+          await fetch(`${PUSH_API_BASE}/api/unsubscribe`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ endpoint: sub.endpoint })
+          });
+        }
+      } catch (err) {
+        console.warn('unsubscribe cleanup failed', err);
+      }
+    }
+
+    async function ensureNotificationPermission() {
+      if (!('Notification' in window) || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+        toast('Push notifications not supported on this browser'); return false;
+      }
+      let perm = Notification.permission;
+      if (perm === 'default') perm = await Notification.requestPermission();
+      if (perm !== 'granted') { toast('Enable notifications in your browser settings first'); return false; }
+      return true;
+    }
+
+    async function selectSchedule(id) {
+      if (id === 'custom') {
+        customTimesForm.classList.add('show');
+        scheduleOptionBtns.forEach(btn => btn.classList.toggle('active', btn.dataset.schedule === 'custom'));
+        return;
+      }
+
+      customTimesForm.classList.remove('show');
+
+      if (id !== 'off') {
+        const ok = await ensureNotificationPermission();
+        if (!ok) return;
+        try {
+          await sendScheduleToServer(id, null);
+        } catch (err) {
+          toast('Could not reach reminder server'); console.error(err); return;
+        }
+      } else {
+        await removeScheduleFromServer();
+      }
+
+      saveSchedule(id);
+      updateScheduleUI();
+      scheduleModalBackdrop.classList.remove('show');
+      toast(id === 'off' ? 'Schedule reminders off' : 'Schedule set: ' + id);
+      vibrate(15);
+    }
+
+    async function saveCustomSchedule() {
+      const times = {
+        shiftStart: customShiftStart.value || null,
+        lunchStart: customLunchStart.value,
+        lunchEnd: customLunchEnd.value,
+        shiftEnd: customShiftEnd.value
+      };
+      if (!times.lunchStart || !times.lunchEnd || !times.shiftEnd) {
+        toast('Fill in lunch start, lunch end, and shift end'); return;
+      }
+
+      const ok = await ensureNotificationPermission();
+      if (!ok) return;
+
+      try {
+        await sendScheduleToServer('custom', times);
+      } catch (err) {
+        toast('Could not reach reminder server'); console.error(err); return;
+      }
+
+      saveSchedule('custom');
+      saveCustomTimes(times);
+      updateScheduleUI();
+      scheduleModalBackdrop.classList.remove('show');
+      toast('Custom schedule saved');
+      vibrate(15);
+    }
+
+    scheduleBtn.addEventListener('click', () => { scheduleModalBackdrop.classList.add('show'); vibrate(12); });
+    closeScheduleModal.addEventListener('click', () => scheduleModalBackdrop.classList.remove('show'));
+    scheduleModalBackdrop.addEventListener('click', (e) => { if (e.target === scheduleModalBackdrop) scheduleModalBackdrop.classList.remove('show'); });
+    scheduleOptionBtns.forEach(btn => btn.addEventListener('click', () => selectSchedule(btn.dataset.schedule)));
+    saveCustomScheduleBtn.addEventListener('click', saveCustomSchedule);
+
+    vibeOptionBtns.forEach(btn => {
+      btn.addEventListener('click', async () => {
+        saveVibe(btn.dataset.vibe);
+        vibeOptionBtns.forEach(b => b.classList.toggle('active', b === btn));
+        vibrate(12);
+        const active = getSavedSchedule();
+        if (active !== 'off') {
+          try {
+            if (active === 'custom') await sendScheduleToServer('custom', getSavedCustomTimes());
+            else await sendScheduleToServer(active, null);
+          } catch (err) { console.warn('vibe re-sync failed', err); }
+        }
+      });
+    });
+
+    navigator.serviceWorker?.addEventListener('message', (event) => {
+      if (event.data?.type === 'PUSH_RESUBSCRIBED') {
+        const active = getSavedSchedule();
+        if (active === 'off') return;
+        if (active === 'custom') sendScheduleToServer('custom', getSavedCustomTimes()).catch(() => {});
+        else sendScheduleToServer(active, null).catch(() => {});
+      }
+    });
+
+    updateScheduleUI();
+  </script>
 </body>
 </html>
